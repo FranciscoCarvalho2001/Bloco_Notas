@@ -16,7 +16,7 @@
             android:name=".SplashScreen"
             android:exported="true" />
         <activity
-            android:name=".ListaNotas"
+            android:name=".ListaNotas.ListaNotas"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
