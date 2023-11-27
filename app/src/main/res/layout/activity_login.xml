@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".autenticacao.Registar">
+    tools:context=".autenticacao.Login">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/registarText"
+            android:id="@+id/loginText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
@@ -23,10 +23,11 @@
             android:textSize="50sp"
             android:textAllCaps="true"
             android:textStyle="bold"
-            android:text="Registo" />
+            android:text="Login" />
+
 
         <EditText
-            android:id="@+id/registoEmail"
+            android:id="@+id/loginEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="70dp"
@@ -37,10 +38,10 @@
             android:minHeight="50dp"
             android:maxHeight="50dp"
             android:inputType="textEmailAddress"
-            android:hint="Email"/>
+            android:hint="Email" />
 
         <EditText
-            android:id="@+id/registoPassword"
+            android:id="@+id/loginPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -50,46 +51,19 @@
             android:minHeight="50dp"
             android:maxHeight="50dp"
             android:inputType="textPassword"
-            android:hint="Password"/>
+            android:hint="Password" />
 
         <Button
-            android:id="@+id/registoButton"
+            android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:layout_marginRight="50dp"
             android:layout_marginLeft="50dp"
-            android:text="Registar" />
+            android:text="LOGIN" />
 
         <Button
-            android:id="@+id/getButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="50dp"
-            android:text="GET" />
-
-        <Button
-            android:id="@+id/updateButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="50dp"
-            android:text="UPDATE" />
-
-        <Button
-            android:id="@+id/deleteButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="50dp"
-            android:text="DELETE" />
-
-        <Button
-            android:id="@+id/mudarParaLoginButton"
+            android:id="@+id/mudarParaRegistoButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
