@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.bloco_notas.Models.Nota
 import com.example.bloco_notas.R
 
-class ListaNotasAdapter(private val notas: ArrayList<Nota>, private val context: Context) :
+class ListaNotasAdapter(private val notas: ArrayList<Nota>, private val context: Context,  private val itemClickListener: (Nota) -> Unit) :
     RecyclerView.Adapter<ListaNotasAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val nota = notas[position]
@@ -35,6 +35,15 @@ class ListaNotasAdapter(private val notas: ArrayList<Nota>, private val context:
             title.text = nota.titulo
             description.text = nota.descricao
         }
-
+        init {
+            // Set an OnClickListener for the entire item view
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val note = notas[position]
+                    itemClickListener(note)
+                }
+            }
+        }
     }
 }
