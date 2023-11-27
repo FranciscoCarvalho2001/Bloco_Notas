@@ -21,7 +21,7 @@
             android:name=".autenticacao.Registar"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".listaNotas.ListaNotas"
             android:exported="true" />
         <activity
             android:name=".SplashScreen"

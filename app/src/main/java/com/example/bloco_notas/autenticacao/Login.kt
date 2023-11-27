@@ -21,6 +21,7 @@ class Login : AppCompatActivity() {
     private lateinit var loginEmail: EditText
     private lateinit var loginPassword: EditText
     private lateinit var loginButton: Button
+    private lateinit var logoutButton: Button
     private lateinit var mudarParaRegistoButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,7 @@ class Login : AppCompatActivity() {
         loginEmail = findViewById(R.id.loginEmail)
         loginPassword = findViewById(R.id.loginPassword)
         loginButton = findViewById(R.id.loginButton)
+        logoutButton = findViewById(R.id.logoutButton)
         mudarParaRegistoButton = findViewById(R.id.mudarParaRegistoButton)
 
         loginButton.setOnClickListener {
@@ -43,6 +45,7 @@ class Login : AppCompatActivity() {
 
     }
 
+    // função de Login
     private fun loginUtilizador(){
         val queue = Volley.newRequestQueue(this@Login)
 
@@ -68,6 +71,38 @@ class Login : AppCompatActivity() {
                 params["action"] = "loginUser"
                 params["email"] = loginEmail
                 params["password"] = loginPassword
+                return params
+            }
+        }
+        queue.add(stringRequest)
+    }
+
+    // função de Logout
+    private fun logoutUtilizador(){
+        val queue = Volley.newRequestQueue(this@Login)
+
+        // obtem os valores do email e password
+        val logoutEmail = loginEmail.text.toString().trim()
+        val logoutPassword = loginPassword.text.toString().trim()
+
+        val stringRequest = object : StringRequest(
+            Request.Method.POST, url,
+            { response ->
+
+                Toast.makeText(this@Login, ""+response, Toast.LENGTH_SHORT).show()
+                Log.e("Resposta - logoutUser", "Response: $response")
+            },
+            { error ->
+
+                Toast.makeText(this@Login, ""+error, Toast.LENGTH_SHORT).show()
+                Log.e("ERRO - logoutUser", "Error: $error")
+            }
+        ){
+            override fun getParams(): MutableMap<String, String>? {
+                val params = HashMap<String, String>()
+                params["action"] = "logoutUser"
+                params["email"] = logoutEmail
+                params["password"] = logoutPassword
                 return params
             }
         }
