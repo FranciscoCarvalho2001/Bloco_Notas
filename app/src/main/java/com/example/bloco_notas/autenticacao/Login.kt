@@ -28,6 +28,8 @@ class Login : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        TokenManager.init(applicationContext)
+
         // ID's dos elementos
         loginEmail = findViewById(R.id.loginEmail)
         loginPassword = findViewById(R.id.loginPassword)
@@ -37,6 +39,10 @@ class Login : AppCompatActivity() {
 
         loginButton.setOnClickListener {
             loginUtilizador()
+        }
+
+        logoutButton.setOnClickListener {
+            logoutUtilizador()
         }
 
         mudarParaRegistoButton.setOnClickListener {
@@ -57,6 +63,7 @@ class Login : AppCompatActivity() {
             Request.Method.POST, url,
             { response ->
 
+                TokenManager.getTokenFromResponse(response)
                 Toast.makeText(this@Login, ""+response, Toast.LENGTH_SHORT).show()
                 Log.e("Resposta - loginUser ", "Response: $response")
             },
@@ -85,28 +92,46 @@ class Login : AppCompatActivity() {
         val logoutEmail = loginEmail.text.toString().trim()
         val logoutPassword = loginPassword.text.toString().trim()
 
-        val stringRequest = object : StringRequest(
-            Request.Method.POST, url,
+//        val stringRequest = object : StringRequest(
+//            Request.Method.POST, url,
+//            { response ->
+//
+//                Toast.makeText(this@Login, ""+response, Toast.LENGTH_SHORT).show()
+//                Log.e("Resposta - logoutUser", "Response: $response")
+//            },
+//            { error ->
+//
+//                Toast.makeText(this@Login, ""+error, Toast.LENGTH_SHORT).show()
+//                Log.e("ERRO - logoutUser", "Error: $error")
+//            }
+//        ){
+//            override fun getParams(): MutableMap<String, String>? {
+//                val params = HashMap<String, String>()
+//                params["action"] = "logoutUser"
+//                params["email"] = logoutEmail
+//                params["password"] = logoutPassword
+//                return params
+//            }
+//        }
+
+        val tokenRequest = object : TokenRequest(
+            Request.Method.POST, url, "logoutUser", logoutEmail,
             { response ->
 
+                TokenManager.apagarToken()
                 Toast.makeText(this@Login, ""+response, Toast.LENGTH_SHORT).show()
                 Log.e("Resposta - logoutUser", "Response: $response")
             },
             { error ->
-
                 Toast.makeText(this@Login, ""+error, Toast.LENGTH_SHORT).show()
                 Log.e("ERRO - logoutUser", "Error: $error")
             }
         ){
             override fun getParams(): MutableMap<String, String>? {
-                val params = HashMap<String, String>()
-                params["action"] = "logoutUser"
-                params["email"] = logoutEmail
-                params["password"] = logoutPassword
-                return params
+                return super.getParams()
             }
         }
-        queue.add(stringRequest)
+        queue.add(tokenRequest)
     }
 
 
