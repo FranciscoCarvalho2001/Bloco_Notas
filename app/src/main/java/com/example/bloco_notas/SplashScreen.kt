@@ -3,7 +3,7 @@ package com.example.bloco_notas
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.bloco_notas.ListaNotas.ListaNotas
+import com.example.bloco_notas.listaNotas.ListaNotas
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

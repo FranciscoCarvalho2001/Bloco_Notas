@@ -1,11 +1,11 @@
-package com.example.bloco_notas.ListaNotas
+package com.example.bloco_notas.listaNotas
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.bloco_notas.Models.Nota
+import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 

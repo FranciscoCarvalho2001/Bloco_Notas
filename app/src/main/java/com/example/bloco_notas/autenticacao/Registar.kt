@@ -1,5 +1,6 @@
-package com.example.bloco_notas.Autenticacao
+package com.example.bloco_notas.autenticacao
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -29,6 +30,7 @@ class Registar : AppCompatActivity() {
     private lateinit var getButton: Button
     private lateinit var updateButton: Button
     private lateinit var deleteButton : Button
+    private lateinit var mudarParaLoginButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +43,7 @@ class Registar : AppCompatActivity() {
         getButton = findViewById(R.id.getButton)
         updateButton = findViewById(R.id.updateButton)
         deleteButton = findViewById(R.id.deleteButton)
+        mudarParaLoginButton = findViewById(R.id.mudarParaLoginButton)
 
         registoButton.setOnClickListener{
             adicionarUtilizador()
@@ -56,6 +59,10 @@ class Registar : AppCompatActivity() {
 
         deleteButton.setOnClickListener {
             apagarUtilizador()
+        }
+
+        mudarParaLoginButton.setOnClickListener {
+            startActivity(Intent(this@Registar, Login::class.java))
         }
 
     }

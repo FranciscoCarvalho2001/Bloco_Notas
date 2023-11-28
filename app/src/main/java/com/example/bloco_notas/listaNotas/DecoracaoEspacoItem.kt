@@ -1,4 +1,4 @@
-package com.example.bloco_notas.ListaNotas
+package com.example.bloco_notas.listaNotas
 
 import android.content.Context
 import android.graphics.Rect

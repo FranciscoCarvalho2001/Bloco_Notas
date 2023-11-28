@@ -1,4 +1,4 @@
-package com.example.bloco_notas.ListaNotas
+package com.example.bloco_notas.listaNotas
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bloco_notas.Models.Nota
+import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.R
 
 class ListaNotasAdapter(private val notas: ArrayList<Nota>, private val context: Context,  private val itemClickListener: (Nota) -> Unit) :
