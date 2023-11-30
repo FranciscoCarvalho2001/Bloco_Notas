@@ -18,7 +18,7 @@ import org.json.JSONException
 class Registar : AppCompatActivity() {
 
     // Lista que guarda o utilizador
-    private val user = mutableListOf<Utilizador>()
+    // private val user = mutableListOf<Utilizador>()
 
     // URL da API
     val url: String = "https://script.google.com/macros/s/AKfycbyqcurpSI4RHz4gyChcU-Kz3vjclwNizphM7ou8q_Pc-PvhplWKaWve6IrwjDAQseZs/exec"
@@ -35,6 +35,8 @@ class Registar : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registar)
+
+        Utilizador.init(applicationContext)
 
         // ID's dos elementos
         registoEmail = findViewById(R.id.registoEmail)
@@ -110,22 +112,21 @@ class Registar : AppCompatActivity() {
             { response ->
                 try {
                     val dados = response.getJSONObject("users")
-                    val userObject = Utilizador(
-                        dados.getString("Id").toInt(),
+                    Utilizador.guardarUtilizador(
+                        dados.getString("Id"),
                         dados.getString("Data"),
                         dados.getString("Email"),
                         dados.getString("Password")
                     )
-                    user.add(userObject)
 
                     val dialogBuilder = AlertDialog.Builder(this@Registar)
                     dialogBuilder.setTitle("Utilizador")
 
-                    if(user.isNotEmpty()) {
-                        val id = user.map { it.id }
-                        val data = user.map { it.data }
-                        val email = user.map { it.email }
-                        val password = user.map { it.password }
+                    if(Utilizador.buscarID()?.isNotEmpty() == true) {
+                        val id = Utilizador.buscarID()
+                        val data = Utilizador.buscarDATA()
+                        val email = Utilizador.buscarEMAIL()
+                        val password = Utilizador.buscarPASSWORD()
                         dialogBuilder.setMessage(
                             "ID: $id\n"+
                                     "Data: $data\n"+
@@ -138,7 +139,7 @@ class Registar : AppCompatActivity() {
 
                     dialogBuilder.setPositiveButton("OK") { dialog, _->
                         dialog.dismiss()
-                        user.clear()
+                        Utilizador.apagarUtilizador()
                     }
 
                     var alertDialog = dialogBuilder.create()
