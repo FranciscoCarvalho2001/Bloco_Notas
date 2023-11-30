@@ -1,5 +1,6 @@
 package com.example.bloco_notas.listaNotas
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -8,6 +9,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ListaNotas : AppCompatActivity() {
     private val noteList = ArrayList<Nota>() // Lista de objetos Note
@@ -31,12 +35,11 @@ class ListaNotas : AppCompatActivity() {
         ListaDeNotas.adapter = adapter
         val fab: FloatingActionButton = findViewById(R.id.Adicionar)
         fab.setOnClickListener(){
-            adicionar()
+            CoroutineScope(Dispatchers.Main).launch {
+                startActivity(Intent(this@ListaNotas, RascunhoNota::class.java))
+                finish()
+            }
         }
     }
 
-    fun adicionar(){
-        noteList.add(Nota("cena${noteList.size+1}","wkcowd"))
-        adapter.notifyDataSetChanged()
-    }
 }
