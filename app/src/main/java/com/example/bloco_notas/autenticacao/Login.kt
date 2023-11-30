@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -22,12 +23,14 @@ class Login : AppCompatActivity() {
     private lateinit var loginPassword: EditText
     private lateinit var loginButton: Button
     private lateinit var logoutButton: Button
+    private lateinit var mostraUtilizadorEToken: Button
     private lateinit var mudarParaRegistoButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        Utilizador.init(applicationContext)
         TokenManager.init(applicationContext)
 
         // ID's dos elementos
@@ -35,6 +38,7 @@ class Login : AppCompatActivity() {
         loginPassword = findViewById(R.id.loginPassword)
         loginButton = findViewById(R.id.loginButton)
         logoutButton = findViewById(R.id.logoutButton)
+        mostraUtilizadorEToken = findViewById(R.id.mostraUtilizadorEToken)
         mudarParaRegistoButton = findViewById(R.id.mudarParaRegistoButton)
 
         loginButton.setOnClickListener {
@@ -43,6 +47,31 @@ class Login : AppCompatActivity() {
 
         logoutButton.setOnClickListener {
             logoutUtilizador()
+        }
+
+        mostraUtilizadorEToken.setOnClickListener {
+            val dialogBuilder = AlertDialog.Builder(this@Login)
+            dialogBuilder.setTitle("Utilizador")
+
+            val id = Utilizador.buscarID()
+            val data = Utilizador.buscarDATA()
+            val email = Utilizador.buscarEMAIL()
+            val password = Utilizador.buscarPASSWORD()
+            val token = TokenManager.buscarToken()
+            dialogBuilder.setMessage(
+                "ID: $id\n"+
+                        "Data: $data\n"+
+                        "Email: $email\n"+
+                        "Password: $password\n"+
+                        "TOKEN: $token\n"
+            )
+
+            dialogBuilder.setPositiveButton("OK") { dialog, _->
+                dialog.dismiss()
+            }
+
+            var alertDialog = dialogBuilder.create()
+            alertDialog.show()
         }
 
         mudarParaRegistoButton.setOnClickListener {
@@ -63,6 +92,7 @@ class Login : AppCompatActivity() {
             Request.Method.POST, url,
             { response ->
 
+                Utilizador.getUserFromResponse(response)
                 TokenManager.getTokenFromResponse(response)
                 Toast.makeText(this@Login, ""+response, Toast.LENGTH_SHORT).show()
                 Log.e("Resposta - loginUser ", "Response: $response")
@@ -85,58 +115,38 @@ class Login : AppCompatActivity() {
     }
 
     // função de Logout
-    private fun logoutUtilizador(){
+    private fun logoutUtilizador() {
         val queue = Volley.newRequestQueue(this@Login)
 
         // obtem os valores do email e password
         val logoutEmail = loginEmail.text.toString().trim()
         val logoutPassword = loginPassword.text.toString().trim()
 
-//        val stringRequest = object : StringRequest(
-//            Request.Method.POST, url,
-//            { response ->
-//
-//                Toast.makeText(this@Login, ""+response, Toast.LENGTH_SHORT).show()
-//                Log.e("Resposta - logoutUser", "Response: $response")
-//            },
-//            { error ->
-//
-//                Toast.makeText(this@Login, ""+error, Toast.LENGTH_SHORT).show()
-//                Log.e("ERRO - logoutUser", "Error: $error")
-//            }
-//        ){
-//            override fun getParams(): MutableMap<String, String>? {
-//                val params = HashMap<String, String>()
-//                params["action"] = "logoutUser"
-//                params["email"] = logoutEmail
-//                params["password"] = logoutPassword
-//                return params
-//            }
-//        }
-
-        val tokenRequest = object : TokenRequest(
-            Request.Method.POST, url, "logoutUser", logoutEmail,
+        val stringRequest = object : StringRequest(
+            Request.Method.POST, url,
             { response ->
 
+                Utilizador.apagarUtilizador()
                 TokenManager.apagarToken()
-                Toast.makeText(this@Login, ""+response, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@Login, "" + response, Toast.LENGTH_SHORT).show()
                 Log.e("Resposta - logoutUser", "Response: $response")
             },
             { error ->
-                Toast.makeText(this@Login, ""+error, Toast.LENGTH_SHORT).show()
+
+                Toast.makeText(this@Login, "" + error, Toast.LENGTH_SHORT).show()
                 Log.e("ERRO - logoutUser", "Error: $error")
             }
-        ){
+        ) {
             override fun getParams(): MutableMap<String, String>? {
-                return super.getParams()
+                val params = HashMap<String, String>()
+                params["action"] = "logoutUser"
+                params["email"] = logoutEmail
+                params["password"] = logoutPassword
+                return params
             }
         }
-        queue.add(tokenRequest)
+        queue.add(stringRequest)
     }
-
-
-
-
 
 
 }
