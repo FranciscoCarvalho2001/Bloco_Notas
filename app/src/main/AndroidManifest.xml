@@ -17,6 +17,9 @@
         android:theme="@style/Theme.Bloco_Notas"
         tools:targetApi="31">
         <activity
+            android:name=".listaNotas.RascunhoNota"
+            android:exported="false" />
+        <activity
             android:name=".autenticacao.Login"
             android:exported="false" />
         <activity
