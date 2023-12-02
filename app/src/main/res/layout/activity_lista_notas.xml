@@ -27,7 +27,7 @@
             android:fontFamily="@font/poppins_bold"
             android:text="@string/As_minhas_notas"
             android:textColor="@color/white"
-            android:textSize="30dp"
+            android:textSize="30sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="MissingConstraints" />
@@ -52,10 +52,10 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:backgroundTint="@color/accent"
-        android:contentDescription="fab_content_desc"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/sinal_mais" />
+        app:srcCompat="@drawable/sinal_mais"
+        android:contentDescription="@string/TODO" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
