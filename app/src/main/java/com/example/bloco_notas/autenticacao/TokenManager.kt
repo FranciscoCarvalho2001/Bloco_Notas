@@ -32,10 +32,10 @@ object TokenManager {
     }
 
     // guarda o token obtido da resposta
-    fun getTokenFromResponse(respnse: String?){
-        respnse?.let {
+    fun getTokenFromResponse(response: String?){
+        response?.let {
             try {
-                val jsonObject = JSONObject(respnse)
+                val jsonObject = JSONObject(response)
                 val token = jsonObject.getString("token")
 
                 guardarToken(token)

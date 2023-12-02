@@ -8,12 +8,16 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.example.bloco_notas.R
-import org.json.JSONException
+import com.example.bloco_notas.models.Utilizador
+import com.example.bloco_notas.models.UtilizadorWrapper
+import com.example.bloco_notas.retrofit.RetrofitInitializer
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.Date
+
 
 class Registar : AppCompatActivity() {
 
@@ -21,7 +25,8 @@ class Registar : AppCompatActivity() {
     // private val user = mutableListOf<Utilizador>()
 
     // URL da API
-    val url: String = "https://script.google.com/macros/s/AKfycbyqcurpSI4RHz4gyChcU-Kz3vjclwNizphM7ou8q_Pc-PvhplWKaWve6IrwjDAQseZs/exec"
+    //val url: String = "https://script.google.com/macros/s/AKfycbyqcurpSI4RHz4gyChcU-Kz3vjclwNizphM7ou8q_Pc-PvhplWKaWve6IrwjDAQseZs/exec"
+    val token = "23f9c8a5ae45"
 
     // Variáveis de layout
     private lateinit var registoEmail: EditText
@@ -35,8 +40,6 @@ class Registar : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registar)
-
-        Utilizador.init(applicationContext)
 
         // ID's dos elementos
         registoEmail = findViewById(R.id.registoEmail)
@@ -52,15 +55,16 @@ class Registar : AppCompatActivity() {
         }
 
         getButton.setOnClickListener{
-            buscarUtilizador()
+            buscarUtilizadores()
+            //buscarUtilizadorPorId(1)
         }
 
         updateButton.setOnClickListener {
-            atualizarUtilizador()
+            atualizarUtilizador(4)
         }
 
         deleteButton.setOnClickListener {
-            apagarUtilizador()
+            apagarUtilizador(4)
         }
 
         mudarParaLoginButton.setOnClickListener {
@@ -69,159 +73,219 @@ class Registar : AppCompatActivity() {
 
     }
 
-    // adiciona o Utilizador á base de dados
+    // obtem os dados do utilizador para registar
     private fun adicionarUtilizador(){
-        val queue = Volley.newRequestQueue(this@Registar)
-
         // obtem os valores do email e password
         val email = registoEmail.text.toString().trim()
         val password = registoPassword.text.toString().trim()
+        // val simpleDate = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
 
-        // Request do tipo POST para a API
-        val stringRequest = object : StringRequest(
-            Request.Method.POST, url,
-            { response ->
-                Toast.makeText(this@Registar, ""+response, Toast.LENGTH_SHORT).show()
-                Log.e("Resposta - addUser ", "Response: $response")
-            },
-            { error ->
-                Toast.makeText(this@Registar, ""+error, Toast.LENGTH_SHORT).show()
-                Log.e("ERRO - addUser", "Error: $error")
+        var utilizador = Utilizador("$email", "$password", "$data")
+
+        addUtilizador(utilizador) {
+            if (it){
+                Toast.makeText(this@Registar, "Registado", Toast.LENGTH_SHORT).show()
+                Log.e("Resposta", "Response: $it")
+            } else {
+                Toast.makeText(this@Registar, "Não Registado", Toast.LENGTH_SHORT).show()
+                Log.e("Resposta", "Response: $it")
             }
-        ){
-            override fun getParams(): MutableMap<String, String>? {
-                val params = HashMap<String, String>()
-                params["action"] = "addUser"
-                params["email"] = email
-                params["password"] = password
-                return params
-            }
+
         }
-        queue.add(stringRequest)
+
     }
 
-    // obtem um Utilizador da base de dados
-    private fun buscarUtilizador(){
-        val queue = Volley.newRequestQueue(this@Registar)
+    // adiciona um utilizador na base de dados
+    private fun addUtilizador(utilizador: Utilizador, onResult: (Boolean) -> Unit) {
+        // embrula o utilizador
+        val utilizadorWrapper = UtilizadorWrapper(utilizador)
 
-        // obtem os valor do email
-        val emailGET = registoEmail.text.toString().trim()
+        val call = RetrofitInitializer()
+            .utilizadorService()
+            .adicionarUtilizador(autorizacao = "Bearer $token", utilizadorWrapper)
+        Log.e("JSON to SEND", "$utilizadorWrapper")
 
-        val jsonObjectRequest = object : JsonObjectRequest(
-            Request.Method.GET, "$url?email=$emailGET", null,
-            { response ->
-                try {
-                    val dados = response.getJSONObject("users")
-                    Utilizador.guardarUtilizador(
-                        dados.getString("Id"),
-                        dados.getString("Data"),
-                        dados.getString("Email"),
-                        dados.getString("Password")
-                    )
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(
+                call: Call<Void>,
+                response: Response<Void>
+            ) {
+                if (response.isSuccessful) {
+                    val utilizadorAdicionado = response.body()
+                    onResult(true)
 
-                    val dialogBuilder = AlertDialog.Builder(this@Registar)
+                    // Log detalhes da resposta
+                    Log.d("API_CALL_SUCCESS", "Response: $utilizadorAdicionado")
+                } else {
+                    // Log detalhes do erro
+                    Log.e("API_CALL_ERROR", "Error: ${response.code()} - ${response.errorBody()}")
+                    onResult(false)
+                }
+            }
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                t.printStackTrace()
+                onResult(false)
+
+                Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
+            }
+        })
+    }
+
+    // pede á API a lista de utilizadores
+    private fun buscarUtilizadores(){
+        // pede ao Retrofit para ler os dados recebidos da API
+        val call = RetrofitInitializer()
+            .utilizadorService()
+            .listarUtilizadores(autorizacao = "Bearer $token")
+        // processa os dados recebidos
+        processarListaUtilizadores(call)
+    }
+
+    // processa lista de utilizadores recebida da API
+    private fun processarListaUtilizadores(call: Call<Map<String, List<Utilizador>>>){
+        call.enqueue(object : Callback<Map<String, List<Utilizador>>> {
+            override fun onResponse(
+                call: Call<Map<String, List<Utilizador>>>,
+                response: Response<Map<String, List<Utilizador>>>
+            ) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    val utilizadorList = responseBody?.get("utilizador")
+
+                    utilizadorList?.forEach{utilizador ->
+                        // Obter dados
+                        val email = utilizador.email
+                        val password = utilizador.password
+                        val data = utilizador.data
+                        //val id = utilizador.id
+
+                        println("User details: Email - $email, Password - $password, Data - $data")
+                    }
+                } else {
+                    Log.e("RESPONSE_FAILURE", "Reponse not Successful: $response")
+                }
+            }
+            override fun onFailure(call: Call<Map<String, List<Utilizador>>>, t: Throwable) {
+                t.printStackTrace()
+                Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
+            }
+        })
+    }
+
+    // pede á API um utilizador, fornecendo um ID
+    private fun buscarUtilizadorPorId(id: Int){
+        val call = RetrofitInitializer()
+            .utilizadorService()
+            .buscarUtilizador(autorizacao = "Bearer $token", id)
+
+        call.enqueue(object : Callback<UtilizadorWrapper> {
+            override fun onResponse(
+                call: Call<UtilizadorWrapper>,
+                response: Response<UtilizadorWrapper>
+            ) {
+
+                val dialogBuilder = AlertDialog.Builder(this@Registar)
+                if (response.isSuccessful){
+
+                    val utilizadorWrapper = response.body()
                     dialogBuilder.setTitle("Utilizador")
 
-                    if(Utilizador.buscarID()?.isNotEmpty() == true) {
-                        val id = Utilizador.buscarID()
-                        val data = Utilizador.buscarDATA()
-                        val email = Utilizador.buscarEMAIL()
-                        val password = Utilizador.buscarPASSWORD()
+                    utilizadorWrapper?.let {
+                        val utilizador = it.utilizador
+                        // Obtain user details from the wrapped object
+                        val email = utilizador.email
+                        val password = utilizador.password
+                        val data = utilizador.data
+                        // val id = utilizador.id
+
                         dialogBuilder.setMessage(
                             "ID: $id\n"+
                                     "Data: $data\n"+
                                     "Email: $email\n"+
                                     "Password: $password\n"
                         )
-                    } else {
-                        dialogBuilder.setMessage("Não há utilizador")
-                    }
 
+                        dialogBuilder.setPositiveButton("OK") { dialog, _->
+                            dialog.dismiss()
+                        }
+
+                        var alertDialog = dialogBuilder.create()
+                        alertDialog.show()
+                    }
+                } else {
+                    dialogBuilder.setMessage("Não há utilizador")
                     dialogBuilder.setPositiveButton("OK") { dialog, _->
                         dialog.dismiss()
-                        Utilizador.apagarUtilizador()
                     }
-
                     var alertDialog = dialogBuilder.create()
                     alertDialog.show()
 
-                } catch (e: JSONException) {
-                    Log.e("JSON ERRO - getUser", "JSON Exception: ${e.message}")
-                    Log.e("Resposta - getUser", "Response: $response")
+                    Log.e("RESPONSE_FAILURE", "Response not Successful: $response")
                 }
-            },
-            { error ->
-
-                Toast.makeText(this@Registar, ""+error, Toast.LENGTH_SHORT).show()
-                Log.e("ERRO - getUser", "Error: $error")
             }
-        ){
-            override fun getHeaders(): MutableMap<String, String> {
-                return super.getHeaders()
+            override fun onFailure(call: Call<UtilizadorWrapper>, t: Throwable) {
+                t.printStackTrace()
+                Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
-        }
-        queue.add(jsonObjectRequest)
+        })
     }
 
-    private fun atualizarUtilizador(){
-        val queue = Volley.newRequestQueue(this@Registar)
-
+    // pede á API para atualizar um utilizador, fornecendo um ID
+    private fun atualizarUtilizador(id: Int){
         // obtem os valores do email e password
-        val emailToUpdate = registoEmail.text.toString().trim()
-        val newPassword = registoPassword.text.toString().trim()
+        val email = registoEmail.text.toString().trim()
+        val password = registoPassword.text.toString().trim()
 
-        val stringRequest = object : StringRequest(
-            Request.Method.POST, url,
-            { response ->
+        var utilizador = Utilizador("$email", "$password", "sdfgfdfdgdg")
 
-                Toast.makeText(this@Registar, ""+response, Toast.LENGTH_SHORT).show()
-                Log.e("Resposta - updateUser", "Response: $response")
-            },
-            { error ->
+        val utilizadorWrapper = UtilizadorWrapper(utilizador)
 
-                Toast.makeText(this@Registar, ""+error, Toast.LENGTH_SHORT).show()
-                Log.e("ERRO - updateUser", "Error: $error")
-            }
-        ){
-            override fun getParams(): MutableMap<String, String>? {
-                val params = HashMap<String, String>()
-                params["action"] = "updateUser"
-                params["emailToUpdate"] = emailToUpdate
-                params["newPassword"] = newPassword
-                return params
-            }
-        }
-        queue.add(stringRequest)
+        updateUtilizador(id, utilizadorWrapper)
     }
 
-    private fun apagarUtilizador(){
-        val queue = Volley.newRequestQueue(this@Registar)
+    // pede á API para apagar um utilizador, fornecendo um ID
+    private fun updateUtilizador(id: Int, utilizadorWrapper: UtilizadorWrapper){
+        val call = RetrofitInitializer()
+            .utilizadorService()
+            .atualizarUtilizador(autorizacao = "Bearer $token", id, utilizadorWrapper)
 
-        val deleteEmail = registoEmail.text.toString().trim()
-        val deletePassword = registoPassword.text.toString().trim()
-
-        val stringRequest = object : StringRequest(
-            Request.Method.POST, url,
-            { response ->
-
-                Toast.makeText(this@Registar, ""+response, Toast.LENGTH_SHORT).show()
-                Log.e("Resposta - deleteUser", "Response: $response")
-            },
-            { error ->
-
-                Toast.makeText(this@Registar, ""+error, Toast.LENGTH_SHORT).show()
-                Log.e("ERRO - deleteUser", "Error: $error")
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(
+                call: Call<Void>,
+                response: Response<Void>
+            ) {
+                // Log detalhes da resposta
+                Toast.makeText(this@Registar, "Atuazliado", Toast.LENGTH_SHORT).show()
+                Log.d("API_CALL_SUCCESS", "Atuazliado")
             }
-        ){
-            override fun getParams(): MutableMap<String, String>? {
-                val params = HashMap<String, String>()
-                params["action"] = "deleteUser"
-                params["emailDelete"] = deleteEmail
-                params["passwordDelete"] = deletePassword
-                return params
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                t.printStackTrace()
+                Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
-        }
-        queue.add(stringRequest)
+        })
+    }
+
+    private fun apagarUtilizador(id: Int){
+        val call = RetrofitInitializer()
+            .utilizadorService()
+            .apagarUtilizador(autorizacao = "Bearer $token", id)
+
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(
+                call: Call<Void>,
+                response: Response<Void>
+            ) {
+                // Log detalhes da resposta
+                Toast.makeText(this@Registar, "Apagado", Toast.LENGTH_SHORT).show()
+                Log.d("API_CALL_SUCCESS", "Apagado")
+            }
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                t.printStackTrace()
+                Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
+            }
+        })
+
     }
 
 }
