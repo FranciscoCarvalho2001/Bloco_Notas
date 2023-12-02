@@ -31,10 +31,30 @@
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="8dp"
                 android:src="@drawable/seta"
-                android:layout_marginEnd="300dp"/>
+                android:layout_marginEnd="200dp"/>
 
+            <ImageButton
+                android:id="@+id/guardarNota"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="8dp"
+                android:src="@drawable/save" />
+
+            <ImageButton
+                android:id="@+id/apagarNota"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="8dp"
+                android:src="@drawable/delete" />
 
         </LinearLayout>
+
         <EditText
             android:id="@+id/nome_textView"
             android:layout_width="wrap_content"
@@ -68,7 +88,9 @@
                 android:textColor="@color/white"
                 android:fontFamily="@font/poppins"
                 android:maxLength= "5000"/>
+
         </ScrollView>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

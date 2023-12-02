@@ -11,14 +11,29 @@ import kotlinx.coroutines.launch
 
 class RascunhoNota : AppCompatActivity() {
 
+    private lateinit var guardarBtn: ImageButton
+    private lateinit var apagarBtn: ImageButton
+    private lateinit var voltarBtn: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rascunho_nota)
-        val voltarBtn: ImageButton = findViewById(R.id.voltar)
+
+        voltarBtn = findViewById(R.id.voltar)
+        apagarBtn = findViewById(R.id.apagarNota)
+        guardarBtn = findViewById(R.id.guardarNota)
+
         voltarBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
             }
+        }
+
+        guardarBtn.setOnClickListener{
+
+        }
+
+        apagarBtn.setOnClickListener{
+            
         }
     }
 }
