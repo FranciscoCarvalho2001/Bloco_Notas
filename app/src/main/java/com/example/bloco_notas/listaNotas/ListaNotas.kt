@@ -9,37 +9,65 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ListaNotas : AppCompatActivity() {
-    private val noteList = ArrayList<Nota>() // Lista de objetos Note
+
+    private val notaLista = ArrayList<Nota>() // Lista de objetos Nota
     private lateinit var adapter: ListaNotasAdapter
     private lateinit var ListaDeNotas : RecyclerView
+    private var index: Int=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_notas)
-        noteList.add(Nota("cena1","wkcowd"))
-        noteList.add(Nota("cena2","wkcowd"))
+
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
 
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         ListaDeNotas.layoutManager = layoutManager
         ListaDeNotas.addItemDecoration(DecoracaoEspacoItem(this))
-        adapter = ListaNotasAdapter(noteList, this) { clickedNote ->
+        adapter = ListaNotasAdapter(notaLista, this) { clickedNote ->
             Toast.makeText(this, "Item clicado: ${clickedNote.titulo}", Toast.LENGTH_SHORT).show()
-
+            val intent = Intent(this, RascunhoNota::class.java)
+            index =notaLista.indexOf(clickedNote)
+            intent.putExtra("object2", index)
+            startActivity(intent)
         }
         ListaDeNotas.adapter = adapter
+
+        notaLista.clear()
+        notaLista.addAll(getNotas())
+        adapter.notifyDataSetChanged()
+
         val fab: FloatingActionButton = findViewById(R.id.Adicionar)
-        fab.setOnClickListener(){
+        fab.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
-                startActivity(Intent(this@ListaNotas, RascunhoNota::class.java))
-                finish()
+                val intent = Intent(this@ListaNotas, RascunhoNota::class.java)
+                index=-1
+                intent.putExtra("object2",index)
+                startActivity(intent)
             }
         }
+    }
+    private fun getNotas(): List<Nota> {
+        val gson = Gson()
+
+        val sharedPreferences = getSharedPreferences("Spref", MODE_PRIVATE)
+        val json = sharedPreferences.getString("notas", "")
+        if (json.isNullOrEmpty()) {
+            // A string JSON é nula ou vazia, retornar uma lista vazia ou tratar conforme necessário
+            return emptyList()
+        }
+        // Usar o TypeToken para preservar o tipo genérico List<Note>
+        val type = object : TypeToken<List<Nota>>() {}.type
+
+        // Converta o JSON string de volta para uma List<Note>
+        return gson.fromJson(json, type) ?: emptyList()
     }
 
 }
