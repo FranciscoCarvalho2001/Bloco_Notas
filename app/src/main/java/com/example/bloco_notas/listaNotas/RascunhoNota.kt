@@ -35,6 +35,13 @@ class RascunhoNota : AppCompatActivity() {
 
         listaNota.addAll(getNotas())
 
+        val index = intent.getSerializableExtra("object2") as Int
+
+        if (index >= 0) {
+            titulo.setText(listaNota[index].titulo)
+            descricao.setText(listaNota[index].descricao)
+        }
+
         voltarBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
@@ -42,15 +49,23 @@ class RascunhoNota : AppCompatActivity() {
         }
 
         guardarBtn.setOnClickListener{
-            guardar()
+            if (index < 0) {
+                guardarNota()
+            } else {
+                atualizarNota(index)
+            }
         }
 
         apagarBtn.setOnClickListener{
-            
+            if (index >= 0) {
+                apagarNota(index)
+            } else {
+                startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
+            }
         }
     }
 
-    private fun guardar() {
+    private fun guardarNota() {
         total = getSharedPreferences("Spref", MODE_PRIVATE).getInt("totalNotes", 0)
         val id = total
         total++
@@ -59,11 +74,24 @@ class RascunhoNota : AppCompatActivity() {
         getSharedPreferences("Spref", MODE_PRIVATE).edit().putInt("totalNotes", total).apply()
         val newNote = Nota("boi@ipt.pt",id, titulo1, descricao1,"02/12/2023")
         listaNota.add(newNote)
-        guardarNotas(listaNota)
+        salvarNotas(listaNota)
         startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
     }
 
-    private fun guardarNotas(notes: List<Nota>) {
+    private fun atualizarNota(index: Int) {
+        val newNote = Nota("boi@ipt.pt",listaNota[index].idNota, titulo.text.toString(), descricao.text.toString(),"02/12/2023")
+        listaNota[index] = newNote
+        salvarNotas(listaNota)
+        startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
+    }
+
+    private fun apagarNota(index: Int) {
+        listaNota.remove(listaNota[index])
+        salvarNotas(listaNota)
+        startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
+    }
+
+    private fun salvarNotas(notes: List<Nota>) {
         val gson = Gson()
         val json = gson.toJson(notes)
         val sharedPreferences = getSharedPreferences("Spref", MODE_PRIVATE)

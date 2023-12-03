@@ -16,9 +16,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ListaNotas : AppCompatActivity() {
+
     private val notaLista = ArrayList<Nota>() // Lista de objetos Nota
     private lateinit var adapter: ListaNotasAdapter
     private lateinit var ListaDeNotas : RecyclerView
+    private var index: Int=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,17 +33,24 @@ class ListaNotas : AppCompatActivity() {
         ListaDeNotas.addItemDecoration(DecoracaoEspacoItem(this))
         adapter = ListaNotasAdapter(notaLista, this) { clickedNote ->
             Toast.makeText(this, "Item clicado: ${clickedNote.titulo}", Toast.LENGTH_SHORT).show()
-
+            val intent = Intent(this, RascunhoNota::class.java)
+            index =notaLista.indexOf(clickedNote)
+            intent.putExtra("object2", index)
+            startActivity(intent)
         }
         ListaDeNotas.adapter = adapter
+
         notaLista.clear()
         notaLista.addAll(getNotas())
         adapter.notifyDataSetChanged()
+
         val fab: FloatingActionButton = findViewById(R.id.Adicionar)
-        fab.setOnClickListener(){
+        fab.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
-                startActivity(Intent(this@ListaNotas, RascunhoNota::class.java))
-                finish()
+                val intent = Intent(this@ListaNotas, RascunhoNota::class.java)
+                index=-1
+                intent.putExtra("object2",index)
+                startActivity(intent)
             }
         }
     }
@@ -49,7 +58,7 @@ class ListaNotas : AppCompatActivity() {
         val gson = Gson()
 
         val sharedPreferences = getSharedPreferences("Spref", MODE_PRIVATE)
-        val json = sharedPreferences.getString("notes", "")
+        val json = sharedPreferences.getString("notas", "")
         if (json.isNullOrEmpty()) {
             // A string JSON é nula ou vazia, retornar uma lista vazia ou tratar conforme necessário
             return emptyList()
