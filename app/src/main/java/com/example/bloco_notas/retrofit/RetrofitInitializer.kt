@@ -1,5 +1,6 @@
 package com.example.bloco_notas.retrofit
 
+import com.example.bloco_notas.retrofit.service.NotaService
 import com.example.bloco_notas.retrofit.service.UtilizadorService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -21,5 +22,7 @@ class RetrofitInitializer {
 
     // Serviço Utilizadores
     fun utilizadorService() = retrofit.create(UtilizadorService::class.java)
+    // Serviço Notas
+    fun notaService() = retrofit.create(NotaService::class.java)
 
 }

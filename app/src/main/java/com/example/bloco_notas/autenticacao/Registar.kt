@@ -243,8 +243,6 @@ class Registar : AppCompatActivity() {
 
         updateUtilizador(id, utilizadorWrapper)
     }
-
-    // pede á API para apagar um utilizador, fornecendo um ID
     private fun updateUtilizador(id: Int, utilizadorWrapper: UtilizadorWrapper){
         val call = RetrofitInitializer()
             .utilizadorService()
@@ -266,6 +264,7 @@ class Registar : AppCompatActivity() {
         })
     }
 
+    // pede á API para apagar um utilizador, fornecendo um ID
     private fun apagarUtilizador(id: Int){
         val call = RetrofitInitializer()
             .utilizadorService()
@@ -285,7 +284,6 @@ class Registar : AppCompatActivity() {
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
-
     }
 
 }
