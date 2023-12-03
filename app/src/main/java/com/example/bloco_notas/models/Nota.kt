@@ -1,3 +1,12 @@
 package com.example.bloco_notas.models
 
-class Nota (val emailUtilizador: String, val idNota: Int,val titulo: String, val descricao: String, val data : String)
+import com.google.gson.annotations.SerializedName
+
+class Nota (
+    @SerializedName("emailUtilizador") val emailUtilizador: String,
+    @SerializedName("idNota") val idNota: Int,
+    @SerializedName("titulo") val titulo: String,
+    @SerializedName("descricao") val descricao: String,
+    @SerializedName("data") val data : String,
+    @SerializedName("id") val id : Int?
+)
