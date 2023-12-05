@@ -5,4 +5,6 @@
     <color name="accent">#6A72A0</color>
     <color name="primary">#83A0AF</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="darkgray">#202020</color>
+    <color name="opaqueSecondary">#32364D</color>
 </resources>

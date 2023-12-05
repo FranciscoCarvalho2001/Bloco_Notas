@@ -55,4 +55,9 @@ class SharedPreferences {
             gson.fromJson(json, type) ?: emptyList()
         }
     }
+
+    fun apagarTudo(context: Context, listaNota:ArrayList<Nota>){
+        listaNota.clear()
+        salvarNotas(context,listaNota)
+    }
 }
