@@ -3,6 +3,7 @@ package com.example.bloco_notas.autenticacao
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import com.example.bloco_notas.models.LoginResponse
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -32,11 +33,10 @@ object TokenManager {
     }
 
     // guarda o token obtido da resposta
-    fun getTokenFromResponse(response: String?){
+    fun getTokenFromResponse(response: LoginResponse?){
         response?.let {
             try {
-                val jsonObject = JSONObject(response)
-                val token = jsonObject.getString("token")
+                val token = it.token
 
                 guardarToken(token)
                 Log.e("TOKEN", "$token")

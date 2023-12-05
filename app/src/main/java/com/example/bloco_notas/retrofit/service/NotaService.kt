@@ -17,7 +17,7 @@ interface NotaService {
     @GET("nota/{id}")
     fun buscarNota(
         @Header("Authorization") autorizacao:String,
-        @Path("id") id: Int
+        @Path("id") id: String
     ): Call<NotaWrapper>
 
     // adiciona uma nota
@@ -31,7 +31,7 @@ interface NotaService {
     @PUT("nota/{id}")
     fun atualizarNota(
         @Header("Authorization") autorizacao:String,
-        @Path("id") id: Int,
+        @Path("id") id: String,
         @Body notaWrapper: NotaWrapper
     ): Call<Void>
 
@@ -39,7 +39,7 @@ interface NotaService {
     @DELETE(("nota/{id}"))
     fun apagarNota(
         @Header("Authorization") autorizacao:String,
-        @Path("id") id: Int
+        @Path("id") id: String
     ): Call<Void>
 
 }

@@ -15,7 +15,7 @@ class SharedPreferences {
 
     fun guardarNota(context: Context, listaNota:ArrayList<Nota>, titulo: String, descricao: String) {
         total =context.getSharedPreferences(ficheiro, AppCompatActivity.MODE_PRIVATE).getInt("totalNotes", 0)
-        val id = total
+        val id = total.toString()
         total++
         val titulo1 = titulo
         val descricao1 = descricao

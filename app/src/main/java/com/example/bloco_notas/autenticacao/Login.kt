@@ -9,11 +9,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.example.bloco_notas.R
+import com.example.bloco_notas.storage.API
 
 class Login : AppCompatActivity() {
-
-    // URL da API
-    val url: String = "https://script.google.com/macros/s/AKfycbyqcurpSI4RHz4gyChcU-Kz3vjclwNizphM7ou8q_Pc-PvhplWKaWve6IrwjDAQseZs/exec"
 
     // Variáveis de layout
     private lateinit var loginEmail: EditText
@@ -22,13 +20,17 @@ class Login : AppCompatActivity() {
     private lateinit var logoutButton: Button
     private lateinit var mostraUtilizadorEToken: Button
     private lateinit var mudarParaRegistoButton: Button
+    private lateinit var api : API
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        //Utilizador.init(applicationContext)
-        //TokenManager.init(applicationContext)
+        api = API()
+
+        // inicializa sharedPreferences dos objetos
+        UtilizadorManager.init(applicationContext)
+        TokenManager.init(applicationContext)
 
         // ID's dos elementos
         loginEmail = findViewById(R.id.loginEmail)
@@ -39,23 +41,27 @@ class Login : AppCompatActivity() {
         mudarParaRegistoButton = findViewById(R.id.mudarParaRegistoButton)
 
         loginButton.setOnClickListener {
-
+            val email = loginEmail.text.toString().trim()
+            val password = loginPassword.text.toString().trim()
+            api.loginUtilizadorAPI(email, password, this@Login)
         }
 
         logoutButton.setOnClickListener {
-
+            val token = TokenManager.buscarToken().toString()
+            val email = UtilizadorManager.buscarEMAIL().toString()
+            api.logoutUtilizadorAPI(token, email, this@Login)
         }
 
         mostraUtilizadorEToken.setOnClickListener {
-
+            val id = UtilizadorManager.buscarID()
+            val email = UtilizadorManager.buscarEMAIL()
+            val data = UtilizadorManager.buscarDATA()
+            val token = TokenManager.buscarToken()
+            Log.e("Utilizador", "ID: $id, EMAIL: $email, DATA: $data, TOKEN: $token")
         }
 
         mudarParaRegistoButton.setOnClickListener {
             startActivity(Intent(this@Login, Registar::class.java))
         }
-
     }
-
-
-
 }
