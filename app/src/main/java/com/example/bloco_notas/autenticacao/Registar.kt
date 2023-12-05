@@ -22,13 +22,6 @@ import java.util.Date
 
 class Registar : AppCompatActivity() {
 
-    // Lista que guarda o utilizador
-    // private val user = mutableListOf<Utilizador>()
-
-    // URL da API
-    //val url: String = "https://script.google.com/macros/s/AKfycbyqcurpSI4RHz4gyChcU-Kz3vjclwNizphM7ou8q_Pc-PvhplWKaWve6IrwjDAQseZs/exec"
-    val token = "23f9c8a5ae45"
-
     // Variáveis de layout
     private lateinit var registoEmail: EditText
     private lateinit var registoPassword: EditText
@@ -45,6 +38,9 @@ class Registar : AppCompatActivity() {
 
         api = API()
 
+        UtilizadorManager.init(applicationContext)
+        TokenManager.init(applicationContext)
+
         // ID's dos elementos
         registoEmail = findViewById(R.id.registoEmail)
         registoPassword = findViewById(R.id.registoPassword)
@@ -58,20 +54,24 @@ class Registar : AppCompatActivity() {
             // obtem os valores do email e password
             val email = registoEmail.text.toString().trim()
             val password = registoPassword.text.toString().trim()
-            api.adicionarUtilizadorAPI(email, password, this@Registar)
+            api.registarUtilizadorAPI(email, password, this@Registar)
         }
 
         getButton.setOnClickListener{
             //api.buscarUtilizadoresAPI()
-            api.buscarUtilizadorPorIdAPI(5, this@Registar)
+            val id = UtilizadorManager.buscarID().toString()
+            val token = TokenManager.buscarToken().toString()
+            api.buscarUtilizadorPorIdAPI(id, token, this@Registar)
         }
 
         updateButton.setOnClickListener {
-            api.atualizarUtilizadorAPI(5, this@Registar)
+            val id = UtilizadorManager.buscarID().toString()
+            api.atualizarUtilizadorAPI(id, this@Registar)
         }
 
         deleteButton.setOnClickListener {
-            api.apagarUtilizadorAPI(8, this@Registar)
+            val id = UtilizadorManager.buscarID().toString()
+            api.apagarUtilizadorAPI(id, this@Registar)
         }
 
         mudarParaLoginButton.setOnClickListener {

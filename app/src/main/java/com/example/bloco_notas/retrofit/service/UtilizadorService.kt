@@ -17,21 +17,14 @@ interface UtilizadorService {
     @GET("utilizador/{id}")
     fun buscarUtilizador(
         @Header("Authorization") autorizacao:String,
-        @Path("id") id: Int
+        @Path("id") id: String
     ): Call<UtilizadorWrapper>
-
-    // adicionar um utilizador
-    @POST("utilizador")
-    fun adicionarUtilizador(
-        @Header("Authorization") autorizacao:String,
-        @Body utilizadorWrapper: UtilizadorWrapper
-    ): Call<Void>
 
     // atualiza um utilizador
     @PUT("utilizador/{id}")
     fun atualizarUtilizador(
         @Header("Authorization") autorizacao:String,
-        @Path("id") id: Int,
+        @Path("id") id: String,
         @Body utilizadorWrapper: UtilizadorWrapper
     ): Call<Void>
 
@@ -39,6 +32,6 @@ interface UtilizadorService {
     @DELETE("utilizador/{id}")
     fun apagarUtilizador(
         @Header("Authorization") autorizacao:String,
-        @Path("id") id: Int
+        @Path("id") id: String
     ): Call<Void>
 }
