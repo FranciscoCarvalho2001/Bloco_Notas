@@ -30,7 +30,12 @@ interface LoginLogoutService {
     ): Call<LoginResponse>
 
     // logout na aplicação
-
+    @POST("exec")
+    fun logout(
+        @Query("action") action: String,
+        @Query("email") email: String,
+        @Query("token") token: String
+    ): Call<String>
 
 
 }

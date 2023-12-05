@@ -65,13 +65,15 @@ class Registar : AppCompatActivity() {
         }
 
         updateButton.setOnClickListener {
+            val token = TokenManager.buscarToken().toString()
             val id = UtilizadorManager.buscarID().toString()
-            api.atualizarUtilizadorAPI(id, this@Registar)
+            api.atualizarUtilizadorAPI(token, id, this@Registar)
         }
 
         deleteButton.setOnClickListener {
+            val token = TokenManager.buscarToken().toString()
             val id = UtilizadorManager.buscarID().toString()
-            api.apagarUtilizadorAPI(id, this@Registar)
+            api.apagarUtilizadorAPI(token, id, this@Registar)
         }
 
         mudarParaLoginButton.setOnClickListener {

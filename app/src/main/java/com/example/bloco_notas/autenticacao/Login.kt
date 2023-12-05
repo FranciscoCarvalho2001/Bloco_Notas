@@ -28,6 +28,7 @@ class Login : AppCompatActivity() {
 
         api = API()
 
+        // inicializa sharedPreferences dos objetos
         UtilizadorManager.init(applicationContext)
         TokenManager.init(applicationContext)
 
@@ -46,9 +47,9 @@ class Login : AppCompatActivity() {
         }
 
         logoutButton.setOnClickListener {
-            UtilizadorManager.apagarUtilizador()
-            TokenManager.apagarToken()
-            Toast.makeText(this@Login, "Apagado", Toast.LENGTH_SHORT).show()
+            val token = TokenManager.buscarToken().toString()
+            val email = UtilizadorManager.buscarEMAIL().toString()
+            api.logoutUtilizadorAPI(token, email, this@Login)
         }
 
         mostraUtilizadorEToken.setOnClickListener {
@@ -56,16 +57,11 @@ class Login : AppCompatActivity() {
             val email = UtilizadorManager.buscarEMAIL()
             val data = UtilizadorManager.buscarDATA()
             val token = TokenManager.buscarToken()
-
             Log.e("Utilizador", "ID: $id, EMAIL: $email, DATA: $data, TOKEN: $token")
         }
 
         mudarParaRegistoButton.setOnClickListener {
             startActivity(Intent(this@Login, Registar::class.java))
         }
-
     }
-
-
-
 }

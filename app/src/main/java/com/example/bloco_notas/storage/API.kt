@@ -19,8 +19,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class API {
-    // token
-    val token = "23f9c8a5ae45"
 
     // ---------------------------------------------------------- Registo/Login/Logout ----------------------------------------------------------
 
@@ -102,16 +100,41 @@ class API {
         })
     }
 
-    fun logoutUtilizadorAPI(){
+    fun logoutUtilizadorAPI(token: String, email: String, context: Context){
+        val call = RetrofitInitializer()
+            .loginLogoutService()
+            .logout("logoutUser", "$email", "$token")
 
+        call.enqueue(object : Callback<String> {
+            override fun onResponse(
+                call: Call<String>,
+                response: Response<String>
+            ) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    UtilizadorManager.apagarUtilizador()
+                    TokenManager.apagarToken()
+                    Toast.makeText(context, "$responseBody", Toast.LENGTH_SHORT).show()
+                    // Log detalhes da resposta
+                    Log.d("API_CALL_SUCCESS", "Response: $responseBody")
+                } else {
+                    // Log detalhes do erro
+                    Log.e("API_CALL_ERROR", "Error: ${response.code()} - ${response.errorBody()}")
+                }
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                t.printStackTrace()
+                Toast.makeText(context, "ERRO AO SAIR!", Toast.LENGTH_SHORT).show()
+                Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
+            }
+        })
     }
-
-
 
     // ---------------------------------------------------------- Utilizador ----------------------------------------------------------
 
     // pede á API a lista de utilizadores
-    fun buscarUtilizadoresAPI(){
+    fun buscarUtilizadoresAPI(token: String){
         // pede ao Retrofit para ler os dados recebidos da API
         val call = RetrofitInitializer()
             .utilizadorService()
@@ -209,7 +232,7 @@ class API {
     }
 
     // pede á API para atualizar um utilizador, fornecendo um ID
-    fun atualizarUtilizadorAPI(id: String, context: Context){
+    fun atualizarUtilizadorAPI(token: String, id: String, context: Context){
         // obtem os valores do email e password
 //        val email = registoEmail.text.toString().trim()
 //        val password = registoPassword.text.toString().trim()
@@ -218,9 +241,9 @@ class API {
 
         val utilizadorWrapper = UtilizadorWrapper(utilizador)
 
-        updateUtilizadorAPI(id, utilizadorWrapper, context)
+        updateUtilizadorAPI(id, token, utilizadorWrapper, context)
     }
-    private fun updateUtilizadorAPI(id: String, utilizadorWrapper: UtilizadorWrapper, context: Context){
+    private fun updateUtilizadorAPI(token: String, id: String, utilizadorWrapper: UtilizadorWrapper, context: Context){
         val call = RetrofitInitializer()
             .utilizadorService()
             .atualizarUtilizador(autorizacao = "Bearer $token", id, utilizadorWrapper)
@@ -242,7 +265,7 @@ class API {
     }
 
     // pede á API para apagar um utilizador, fornecendo um ID
-    fun apagarUtilizadorAPI(id: String, context: Context){
+    fun apagarUtilizadorAPI(token: String, id: String, context: Context){
         val call = RetrofitInitializer()
             .utilizadorService()
             .apagarUtilizador(autorizacao = "Bearer $token", id)
@@ -266,7 +289,7 @@ class API {
     // ---------------------------------------------------------- Nota ----------------------------------------------------------
 
     // pede á API a lista de notas
-    private fun buscarNotasAPI(){
+    private fun buscarNotasAPI(token: String,){
         // pede ao Retrofit para ler os dados recebidos da API
         val call = RetrofitInitializer()
             .notaService()
@@ -305,7 +328,7 @@ class API {
     }
 
     // pede á API uma nota, fornecendo um ID
-    private fun buscarNotaPorIdAPI(context: Context, id: String){
+    private fun buscarNotaPorIdAPI(token: String, id: String, context: Context){
         val call = RetrofitInitializer()
             .notaService()
             .buscarNota(autorizacao = "Bearer $token", id)
@@ -357,10 +380,10 @@ class API {
     }
 
     // obtem os dados da nota para guardar
-    fun adicionarNotaAPI( idNota: String, titulo:String, descricao:String){
+    fun adicionarNotaAPI(idNota: String, titulo:String, descricao:String, token: String){
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
         var nota = Nota("algo@algo.pt", idNota, titulo, descricao , "$data", null)
-        addNotaAPI(nota) {
+        addNotaAPI(token, nota) {
             if (it){
                 Log.e("Resposta", "Response: $it")
             } else {
@@ -369,7 +392,7 @@ class API {
         }
     }
     // adiciona um nota na base de dados
-    fun addNotaAPI(nota: Nota, onResult: (Boolean) -> Unit) {
+    fun addNotaAPI(token: String, nota: Nota, onResult: (Boolean) -> Unit) {
         // embrula o utilizador
         val notaWrapper = NotaWrapper(nota)
         val call = RetrofitInitializer()
@@ -401,13 +424,13 @@ class API {
     }
 
     // pede á API para atualizar uma nota, fornecendo um ID
-    fun atualizarNotaAPI(id: String, idNota: String, titulo:String, descricao:String){
+    fun atualizarNotaAPI(id: String, idNota: String, titulo:String, descricao:String, token: String){
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
         var nota = Nota("algo@algo.pt", idNota, titulo, descricao, "$data", null)
         val notaWrapper = NotaWrapper(nota)
-        updateNotaAPI(id, notaWrapper)
+        updateNotaAPI(token, id, notaWrapper)
     }
-    fun updateNotaAPI(id: String, notaWrapper: NotaWrapper){
+    fun updateNotaAPI(token: String, id: String, notaWrapper: NotaWrapper){
         val call = RetrofitInitializer()
             .notaService()
             .atualizarNota(autorizacao = "Bearer $token", id, notaWrapper)
@@ -427,7 +450,7 @@ class API {
     }
 
     // pede á API para apagar uma nota, fornecendo um ID
-    fun apagarNotaAPI(id: String){
+    fun apagarNotaAPI(token: String, id: String){
         val call = RetrofitInitializer()
             .notaService()
             .apagarNota(autorizacao = "Bearer $token", id)
@@ -445,7 +468,5 @@ class API {
             }
         })
     }
-
-
 
 }
