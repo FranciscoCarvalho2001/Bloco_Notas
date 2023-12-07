@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
 import com.example.bloco_notas.R
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
@@ -96,4 +97,5 @@ class RascunhoNota : AppCompatActivity() {
         }
 
     }
+
 }

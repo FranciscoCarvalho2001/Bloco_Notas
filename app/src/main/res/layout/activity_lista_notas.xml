@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/textRaulLino2"
+            android:id="@+id/textoMeu"
             android:layout_width="match_parent"
             android:layout_height="51dp"
             android:layout_marginStart="15dp"
@@ -32,18 +32,49 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="MissingConstraints" />
 
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="5dp"
+            android:ems="10"
+            android:inputType="text"
+            android:fontFamily="@font/poppins"
+            app:queryHint="Procura nota"
+            android:textColor="@color/white"
+            android:textColorHint="@color/darkgray"
+            android:background="@drawable/cantos_arredondados2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textoMeu"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/note_list_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/secondary"
+            android:layout_marginTop="16dp"
             android:paddingHorizontal="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/searchBar" />
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/apagarTudo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/accent"
+        app:layout_constraintBottom_toTopOf="@id/Adicionar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/delete"
+        android:contentDescription="@string/TODO" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/Adicionar"
