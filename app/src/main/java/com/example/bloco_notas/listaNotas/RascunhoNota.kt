@@ -5,11 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.Toast
 import com.example.bloco_notas.R
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
-import com.example.bloco_notas.storage.SharedPreferences
+import com.example.bloco_notas.storage.MinhaSharedPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +24,7 @@ class RascunhoNota : AppCompatActivity() {
     private lateinit var voltarBtn: ImageButton
     private val listaNota = ArrayList<Nota>()
     private lateinit var api :API
-    private lateinit var sp : SharedPreferences
+    private lateinit var sp : MinhaSharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +36,9 @@ class RascunhoNota : AppCompatActivity() {
         guardarBtn = findViewById(R.id.guardarNota)
         titulo = findViewById(R.id.tituloCampo)
         descricao = findViewById(R.id.descricaoCampo)
-        sp=SharedPreferences()
-        listaNota.addAll(sp.getNotas(this))
+        sp=MinhaSharedPreferences()
+        sp.init(this)
+        listaNota.addAll(sp.getNotas())
 
         // Obtém o índice do extra "objeto" da Intent
         val index = intent.getSerializableExtra("objeto") as Int
@@ -55,9 +55,9 @@ class RascunhoNota : AppCompatActivity() {
             if(!titulo.text.isEmpty() && !descricao.text.isEmpty()){
                 when {
                     // Se o index é menor significa que é uma nova Nota
-                    index < 0 ->sp.guardarNota(this,listaNota,titulo.text.toString(),descricao.text.toString())
+                    index < 0 ->sp.guardarNota(listaNota,titulo.text.toString(),descricao.text.toString())
                     // Se não é uma Nota existente portanto será atualizada
-                    else -> sp.atualizarNota(this,index,listaNota,titulo.text.toString(),descricao.text.toString())
+                    else -> sp.atualizarNota(index,listaNota,titulo.text.toString(),descricao.text.toString())
                 }
             }
             CoroutineScope(Dispatchers.Main).launch {
@@ -70,11 +70,11 @@ class RascunhoNota : AppCompatActivity() {
         guardarBtn.setOnClickListener{
             // Se o index é menor significa que é uma nova Nota
             if (index < 0) {
-                sp.guardarNota(this,listaNota,titulo.text.toString(),descricao.text.toString())
+                sp.guardarNota(listaNota,titulo.text.toString(),descricao.text.toString())
                 //api.adicionarNotaAPI()
             } // Se não é uma Nota existente portanto será atualizada
             else {
-                sp.atualizarNota(this,index,listaNota,titulo.text.toString(),descricao.text.toString())
+                sp.atualizarNota(index,listaNota,titulo.text.toString(),descricao.text.toString())
                 //api.atualizarNotaAPI(index)
             }
             CoroutineScope(Dispatchers.Main).launch {
@@ -86,7 +86,7 @@ class RascunhoNota : AppCompatActivity() {
         apagarBtn.setOnClickListener{
             // Seo index é maior ou igual que 0 significa que é uma Nota existente portanto será apagada
             if (index >= 0) {
-                sp.apagarNota(this,index,listaNota)
+                sp.apagarNota(index,listaNota)
                 //api.apagarNotaAPI(index)
             } else {
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))

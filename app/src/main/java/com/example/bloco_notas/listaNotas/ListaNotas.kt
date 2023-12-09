@@ -5,21 +5,26 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.R
+import com.example.bloco_notas.autenticacao.Registar
+import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.storage.API
-import com.example.bloco_notas.storage.SharedPreferences
+import com.example.bloco_notas.storage.MinhaSharedPreferences
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.search.SearchBar
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.system.exitProcess
 
 class ListaNotas : AppCompatActivity() {
 
@@ -30,20 +35,24 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var ListaDeNotas : RecyclerView
     private lateinit var searchBar : SearchView
     private var index: Int=0
-    private lateinit var sp : SharedPreferences
+    private lateinit var sp : MinhaSharedPreferences
     private lateinit var api : API
     private lateinit var apagaTudo : ImageButton
+    private lateinit var drawerLayout :DrawerLayout
+    private lateinit var utilizador :String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_notas)
 
         //inicialização das variaveis
-        sp = SharedPreferences()
+        sp = MinhaSharedPreferences()
+        sp.init(this)
         api = API()
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
         searchBar = findViewById(R.id.searchBar)
         apagaTudo=findViewById(R.id.apagarTudo)
+        utilizador = UtilizadorManager.buscarEMAIL().toString()
 
         // Configuração do layout e adapter para a RecyclerView
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -67,11 +76,11 @@ class ListaNotas : AppCompatActivity() {
         // Limpar a lista de Notas
         originalNotaLista.clear()
         // Adicionar as Notas atualizadas á lista
-        originalNotaLista.addAll(sp.getNotas(this))
+        originalNotaLista.addAll(sp.getNotas())
         // Limpar a lista de Notas
         notaLista.clear()
         // Adicionar as Notas atualizadas á lista
-        notaLista.addAll(sp.getNotas(this))
+        notaLista.addAll(sp.buscarNotasUtilizador())
         // Notifica as mudanças da lista para o RecyclerView
         adapter.notifyDataSetChanged()
 
@@ -88,6 +97,7 @@ class ListaNotas : AppCompatActivity() {
             }
             //buscarNotas()
             //buscarNotaPorId(2)
+
         }
 
         searchBar.clearFocus()
@@ -108,7 +118,7 @@ class ListaNotas : AppCompatActivity() {
         apagaTudo.setOnClickListener {
             deleteAll()
         }
-
+        setupDrawerLayout()
     }
 
     // Função para procurar Notas na search bar
@@ -142,8 +152,8 @@ class ListaNotas : AppCompatActivity() {
             .setMessage("Tem a certeza que quer apagar as Notas todas?")
             // Cria e prepara o botão para responder ao click
             .setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, id ->
-                sp.apagarTudo(this,notaLista)
-                notaLista.addAll(sp.getNotas(this))
+                sp.apagarTudo(notaLista)
+                notaLista.addAll(sp.getNotas())
                 adapter.notifyDataSetChanged()
             })
             // Cria e prepara o botão para responder ao click
@@ -152,5 +162,62 @@ class ListaNotas : AppCompatActivity() {
             .create()
             // Exibe
             .show()
+    }
+
+    private fun setupDrawerLayout() {
+        drawerLayout = findViewById(R.id.drawer_layout)
+        val menuBtn = findViewById<ImageButton>(R.id.btnMenu)
+
+        menuBtn.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        val toggle = ActionBarDrawerToggle(
+            this,
+            drawerLayout,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        setupNavigationView(navView)
+    }
+
+    private fun setupNavigationView(navView: NavigationView) {
+
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val headerView = navigationView.getHeaderView(0)
+        val nome: TextView = headerView.findViewById(R.id.nome)
+        nome.text= utilizador
+
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        startActivity(Intent(this@ListaNotas, Registar::class.java))
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+
+                R.id.nav_settings -> {
+                    // Lógica para o item 2
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                // Adicione mais casos conforme necessário
+                else -> false
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 }

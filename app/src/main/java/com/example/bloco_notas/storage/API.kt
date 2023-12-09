@@ -20,6 +20,8 @@ import java.util.Date
 
 class API {
 
+    var sp: MinhaSharedPreferences = MinhaSharedPreferences()
+
     // ---------------------------------------------------------- Registo/Login/Logout ----------------------------------------------------------
 
     // obtem os dados do utilizador para registar

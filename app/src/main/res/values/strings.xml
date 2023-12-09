@@ -4,4 +4,6 @@
     <string name="Titulo">Título</string>
     <string name="Escrever">Escreva aqui</string>
     <string name="TODO">TODO</string>
+    <string name="navigation_drawer_open">aberto</string>
+    <string name="navigation_drawer_close">fechado</string>
 </resources>

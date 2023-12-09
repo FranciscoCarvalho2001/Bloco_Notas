@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.example.bloco_notas.R
+import com.example.bloco_notas.listaNotas.ListaNotas
 import com.example.bloco_notas.storage.API
 
 class Login : AppCompatActivity() {
@@ -44,6 +45,7 @@ class Login : AppCompatActivity() {
             val email = loginEmail.text.toString().trim()
             val password = loginPassword.text.toString().trim()
             api.loginUtilizadorAPI(email, password, this@Login)
+
         }
 
         logoutButton.setOnClickListener {
@@ -58,6 +60,7 @@ class Login : AppCompatActivity() {
             val data = UtilizadorManager.buscarDATA()
             val token = TokenManager.buscarToken()
             Log.e("Utilizador", "ID: $id, EMAIL: $email, DATA: $data, TOKEN: $token")
+            startActivity(Intent(this@Login, ListaNotas::class.java))
         }
 
         mudarParaRegistoButton.setOnClickListener {
