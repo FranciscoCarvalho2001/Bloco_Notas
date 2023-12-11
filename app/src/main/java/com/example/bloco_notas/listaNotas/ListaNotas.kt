@@ -2,22 +2,23 @@ package com.example.bloco_notas.listaNotas
 
 import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.R
+import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.Registar
 import com.example.bloco_notas.autenticacao.UtilizadorManager
+import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
 import com.example.bloco_notas.storage.MinhaSharedPreferences
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -25,6 +26,7 @@ import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 class ListaNotas : AppCompatActivity() {
 
@@ -95,9 +97,6 @@ class ListaNotas : AppCompatActivity() {
                 intent.putExtra("objeto",index)
                 startActivity(intent)
             }
-            //buscarNotas()
-            //buscarNotaPorId(2)
-
         }
 
         searchBar.clearFocus()
@@ -190,16 +189,21 @@ class ListaNotas : AppCompatActivity() {
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val headerView = navigationView.getHeaderView(0)
         val nome: TextView = headerView.findViewById(R.id.nome)
-        nome.text= utilizador
+        val loginMenuItem = navView.menu.findItem(R.id.nav_login)
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
                     CoroutineScope(Dispatchers.Main).launch {
-                        startActivity(Intent(this@ListaNotas, Registar::class.java))
+                        val intent = Intent(this@ListaNotas, RascunhoNota::class.java)
+                        // Variavel index é metida a -1 para evidenciar que não foi escolhido nenhuma na Nota
+                        index=-1
+                        intent.putExtra("objeto",index)
+                        startActivity(intent)
                     }
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
+
                 }
 
                 R.id.nav_settings -> {
@@ -208,9 +212,38 @@ class ListaNotas : AppCompatActivity() {
                     true
                 }
                 // Adicione mais casos conforme necessário
+
+                R.id.nav_about -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 else -> false
             }
         }
+        if(!utilizador.isEmpty()){
+
+            nome.text= utilizador
+            loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
+            loginMenuItem.setTitle("Sair")
+            loginMenuItem.setOnMenuItemClickListener{
+                startActivity(Intent(this, Login::class.java))
+                drawerLayout.closeDrawer(GravityCompat.START)
+                true
+            }
+
+        }else{
+
+            nome.text= "Convidado"
+            loginMenuItem.setIcon(getResources().getDrawable(R.drawable.logout))
+            loginMenuItem.setTitle("Entrar/Registar")
+            loginMenuItem.setOnMenuItemClickListener{
+                startActivity(Intent(this, Login::class.java))
+                drawerLayout.closeDrawer(GravityCompat.START)
+                true
+            }
+        }
+
+
     }
 
     override fun onBackPressed() {

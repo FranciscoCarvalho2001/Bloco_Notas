@@ -11,7 +11,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/secondary">
+            android:background="@color/secondary"
+            >
 
             <ImageButton
                 android:id="@+id/btnMenu"
@@ -19,7 +20,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="24dp"
-                android:backgroundTint="@color/secondary"
+                android:backgroundTint="@android:color/transparent"
                 android:foregroundTint="@color/white"
                 app:layout_constraintEnd_toStartOf="@id/textomeu"
                 app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +35,7 @@
                 android:layout_marginTop="24dp"
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/As_minhas_notas"
-                android:textColor="@color/white"
+
                 android:textSize="30dp"
                 app:layout_constraintStart_toEndOf="@id/btnMenu"
                 app:layout_constraintTop_toTopOf="parent"
@@ -62,7 +63,7 @@
                 android:id="@+id/note_list_recyclerview"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:background="@color/secondary"
+
                 android:layout_marginTop="16dp"
                 android:paddingHorizontal="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"

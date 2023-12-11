@@ -8,7 +8,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="160dp"
-        android:background="@color/secondary"
+        android:background="@color/primary"
         android:gravity="bottom"
         android:orientation="vertical"
         android:padding="16dp"
