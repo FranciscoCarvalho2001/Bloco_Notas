@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,7 +29,7 @@ class API {
 
 
     var sp: MinhaSharedPreferences = MinhaSharedPreferences()
-
+    lateinit var alertDialog : AlertDialog
     // ---------------------------------------------------------- Registo/Login/Logout ----------------------------------------------------------
 
     // obtem os dados do utilizador para registar
@@ -82,7 +80,6 @@ class API {
             override fun onFailure(call: Call<String>, t: Throwable) {
                 t.printStackTrace()
                 onResult(false)
-
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
@@ -112,23 +109,12 @@ class API {
                 }
             }
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                alertDialog.cancel()
                 t.printStackTrace()
                 Toast.makeText(context, "ERRO AO ENTRAR!", Toast.LENGTH_SHORT).show()
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
-    }
-    private fun inflateLayout(context: Context) {
-        val inflater = LayoutInflater.from(context)
-
-        // Inflate the layout resource
-        val inflatedLayout = inflater.inflate(R.layout.layout_progresso, null) as ConstraintLayout
-        val dialogBuilder = AlertDialog.Builder(context)
-            .setView(inflatedLayout)
-            .setCancelable(false)
-        val alertDialog = dialogBuilder.create()
-        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        alertDialog.show()
     }
 
     fun logoutUtilizadorAPI(token: String, email: String, context: Context){
@@ -500,4 +486,18 @@ class API {
         })
     }
 
+    private fun inflateLayout(context: Context) {
+        val inflater = LayoutInflater.from(context)
+
+        // Inflate the layout resource
+        val inflatedLayout = inflater.inflate(R.layout.layout_progresso, null) as ConstraintLayout
+        val dialogBuilder = AlertDialog.Builder(context)
+            .setView(inflatedLayout)
+            .setCancelable(false)
+        alertDialog = dialogBuilder.create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+    }
 }
+
+

@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.Login
-import com.example.bloco_notas.autenticacao.Registar
+import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
@@ -41,7 +41,8 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var api : API
     private lateinit var apagaTudo : ImageButton
     private lateinit var drawerLayout :DrawerLayout
-    private lateinit var utilizador :String
+    private lateinit var utilizadorEmail :String
+    private lateinit var utilizadorToken :String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +55,9 @@ class ListaNotas : AppCompatActivity() {
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
         searchBar = findViewById(R.id.searchBar)
         apagaTudo=findViewById(R.id.apagarTudo)
-        utilizador = UtilizadorManager.buscarEMAIL().toString()
+        utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
+        TokenManager.init(this)
+        utilizadorToken = TokenManager.buscarToken().toString()
 
         // Configuração do layout e adapter para a RecyclerView
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -220,12 +223,13 @@ class ListaNotas : AppCompatActivity() {
                 else -> false
             }
         }
-        if(!utilizador.isEmpty()){
+        if(!utilizadorEmail.isEmpty()){
 
-            nome.text= utilizador
+            nome.text= utilizadorEmail
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
             loginMenuItem.setOnMenuItemClickListener{
+                api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
                 startActivity(Intent(this, Login::class.java))
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true

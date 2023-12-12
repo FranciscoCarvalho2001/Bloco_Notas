@@ -66,7 +66,6 @@ class Login : AppCompatActivity() {
             val data = UtilizadorManager.buscarDATA()
             val token = TokenManager.buscarToken()
             Log.e("Utilizador", "ID: $id, EMAIL: $email, DATA: $data, TOKEN: $token")
-            startActivity(Intent(this@Login, ListaNotas::class.java))
         }
 
         mudarParaRegistoButton.setOnClickListener {
