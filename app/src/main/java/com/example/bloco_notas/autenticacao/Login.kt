@@ -1,16 +1,17 @@
 package com.example.bloco_notas.autenticacao
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.R
 import com.example.bloco_notas.listaNotas.ListaNotas
 import com.example.bloco_notas.storage.API
+
 
 class Login : AppCompatActivity() {
 
@@ -46,6 +47,11 @@ class Login : AppCompatActivity() {
             val password = loginPassword.text.toString().trim()
             api.loginUtilizadorAPI(email, password, this@Login)
 
+            // for input manager and initializing it.
+            val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+
+            // on below line hiding our keyboard.
+            inputMethodManager.hideSoftInputFromWindow(loginPassword.getWindowToken(), 0)
         }
 
         logoutButton.setOnClickListener {

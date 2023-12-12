@@ -7,4 +7,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="darkgray">#202020</color>
     <color name="opaqueSecondary">#32364D</color>
+    <style name="TransparentDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
 </resources>
