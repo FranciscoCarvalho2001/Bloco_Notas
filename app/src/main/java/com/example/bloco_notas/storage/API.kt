@@ -1,11 +1,17 @@
 package com.example.bloco_notas.storage
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
+import com.example.bloco_notas.listaNotas.ListaNotas
 import com.example.bloco_notas.models.LoginResponse
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.models.NotaWrapper
@@ -18,8 +24,12 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Date
 
+
 class API {
 
+
+    var sp: MinhaSharedPreferences = MinhaSharedPreferences()
+    lateinit var alertDialog : AlertDialog
     // ---------------------------------------------------------- Registo/Login/Logout ----------------------------------------------------------
 
     // obtem os dados do utilizador para registar
@@ -70,13 +80,13 @@ class API {
             override fun onFailure(call: Call<String>, t: Throwable) {
                 t.printStackTrace()
                 onResult(false)
-
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
     }
 
     fun loginUtilizadorAPI(email: String, password: String, context: Context){
+        inflateLayout(context)
         val call = RetrofitInitializer()
             .loginLogoutService()
             .login("loginUser", "$email", "$password")
@@ -86,13 +96,20 @@ class API {
                 call: Call<LoginResponse>,
                 response: Response<LoginResponse>
             ) {
+
                 val responseBody = response.body()
                 UtilizadorManager.getUserFromResponse(responseBody)
                 TokenManager.getTokenFromResponse(responseBody)
                 Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
                 Log.e("RESPONSE", "Response : $responseBody")
+
+                if (response.isSuccessful) {
+                    context.startActivity(Intent(context, ListaNotas::class.java))
+                    (context as AppCompatActivity).finish()
+                }
             }
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                alertDialog.cancel()
                 t.printStackTrace()
                 Toast.makeText(context, "ERRO AO ENTRAR!", Toast.LENGTH_SHORT).show()
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
@@ -289,7 +306,7 @@ class API {
     // ---------------------------------------------------------- Nota ----------------------------------------------------------
 
     // pede á API a lista de notas
-    private fun buscarNotasAPI(token: String,){
+    private fun buscarNotasAPI(token: String){
         // pede ao Retrofit para ler os dados recebidos da API
         val call = RetrofitInitializer()
             .notaService()
@@ -469,4 +486,18 @@ class API {
         })
     }
 
+    private fun inflateLayout(context: Context) {
+        val inflater = LayoutInflater.from(context)
+
+        // Inflate the layout resource
+        val inflatedLayout = inflater.inflate(R.layout.layout_progresso, null) as ConstraintLayout
+        val dialogBuilder = AlertDialog.Builder(context)
+            .setView(inflatedLayout)
+            .setCancelable(false)
+        alertDialog = dialogBuilder.create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+    }
 }
+
+
