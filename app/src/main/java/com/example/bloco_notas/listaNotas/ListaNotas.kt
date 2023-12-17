@@ -44,6 +44,10 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var utilizadorEmail :String
     private lateinit var utilizadorToken :String
 
+    private val handler = android.os.Handler()
+    private val delay: Long = 3000 // 3 segundos
+    private var isDialogShowing = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_notas)
@@ -121,6 +125,33 @@ class ListaNotas : AppCompatActivity() {
             deleteAll()
         }
         setupDrawerLayout()
+
+        checkInternet()
+    }
+
+    // faz check para saber se tem conexão á Internet
+    private fun checkInternet() {
+        val builder = AlertDialog.Builder(this@ListaNotas)
+        builder.setTitle("Sem Conexão á Internet!")
+        builder.setMessage("Por favor confirma a sua conexão e tente outra vez.")
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+            isDialogShowing = false
+        }
+        val dialog = builder.create()
+
+        handler.postDelayed(object : Runnable{
+            override fun run() {
+                if(!api.internetConectada(this@ListaNotas) && !isDialogShowing) {
+                    dialog.show()
+                    isDialogShowing = true
+                } else if (api.internetConectada(this@ListaNotas) && isDialogShowing) {
+                    dialog.dismiss()
+                    isDialogShowing = false
+                }
+                handler.postDelayed(this, delay)
+            }
+        }, delay)
     }
 
     // Função para procurar Notas na search bar

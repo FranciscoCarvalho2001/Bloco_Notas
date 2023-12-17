@@ -2,6 +2,7 @@ package com.example.bloco_notas.storage
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
@@ -30,6 +31,18 @@ class API {
 
     var sp: MinhaSharedPreferences = MinhaSharedPreferences()
     lateinit var alertDialog : AlertDialog
+
+    fun internetConectada(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (connectivityManager != null) {
+            val activeNetwork = connectivityManager.activeNetworkInfo
+            if (activeNetwork != null && activeNetwork.isConnected) {
+                return true
+            }
+        }
+        return false
+    }
+
     // ---------------------------------------------------------- Registo/Login/Logout ----------------------------------------------------------
 
     // obtem os dados do utilizador para registar
