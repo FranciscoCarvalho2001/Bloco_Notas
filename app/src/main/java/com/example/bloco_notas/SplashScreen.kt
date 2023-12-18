@@ -16,7 +16,7 @@ class SplashScreen : AppCompatActivity() {
         supportActionBar?.hide()
         CoroutineScope(Dispatchers.Main).launch {
             delay(3000L)
-            startActivity(Intent(this@SplashScreen, Login::class.java))
+            startActivity(Intent(this@SplashScreen, PaginaInicial::class.java))
             finish()
         }
     }
