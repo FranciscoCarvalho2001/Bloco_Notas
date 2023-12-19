@@ -86,10 +86,12 @@ class ListaNotas : AppCompatActivity() {
         originalNotaLista.clear()
         // Adicionar as Notas atualizadas á lista
         originalNotaLista.addAll(sp.getNotas())
+
+        api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
         // Limpar a lista de Notas
         notaLista.clear()
         // Adicionar as Notas atualizadas á lista
-        notaLista.addAll(sp.buscarNotasUtilizador())
+        notaLista.addAll(sp.getNotas())
         // Notifica as mudanças da lista para o RecyclerView
         adapter.notifyDataSetChanged()
 
@@ -104,7 +106,11 @@ class ListaNotas : AppCompatActivity() {
                 intent.putExtra("objeto",index)
                 startActivity(intent)
             }
+
         }
+
+        // Notifica as mudanças da lista para o RecyclerView
+        adapter.notifyDataSetChanged()
 
         searchBar.clearFocus()
         // Evento para ao escrever na searchView serem mostradas as Notas correspondentes ao texto inserido

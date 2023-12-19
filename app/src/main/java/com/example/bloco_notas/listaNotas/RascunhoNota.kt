@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageButton
 import com.example.bloco_notas.R
+import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
 import com.example.bloco_notas.storage.MinhaSharedPreferences
@@ -29,6 +30,8 @@ class RascunhoNota : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rascunho_nota)
+
+        TokenManager.init(applicationContext)
 
         //inicialização das variaveis
         voltarBtn = findViewById(R.id.voltar)
@@ -55,7 +58,7 @@ class RascunhoNota : AppCompatActivity() {
             if(!titulo.text.isEmpty() && !descricao.text.isEmpty()){
                 when {
                     // Se o index é menor significa que é uma nova Nota
-                    index < 0 ->sp.guardarNota(listaNota,titulo.text.toString(),descricao.text.toString())
+                    index < 0 ->sp.guardarNota(listaNota,sp.getTotal().toString(),titulo.text.toString(),descricao.text.toString())
                     // Se não é uma Nota existente portanto será atualizada
                     else -> sp.atualizarNota(index,listaNota,titulo.text.toString(),descricao.text.toString())
                 }
@@ -70,7 +73,8 @@ class RascunhoNota : AppCompatActivity() {
         guardarBtn.setOnClickListener{
             // Se o index é menor significa que é uma nova Nota
             if (index < 0) {
-                sp.guardarNota(listaNota,titulo.text.toString(),descricao.text.toString())
+
+                sp.guardarNota(listaNota,sp.getTotal().toString(),titulo.text.toString(),descricao.text.toString())
                 //api.adicionarNotaAPI()
             } // Se não é uma Nota existente portanto será atualizada
             else {

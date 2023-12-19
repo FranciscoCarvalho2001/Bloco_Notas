@@ -19,6 +19,7 @@ import com.example.bloco_notas.models.NotaWrapper
 import com.example.bloco_notas.models.Utilizador
 import com.example.bloco_notas.models.UtilizadorWrapper
 import com.example.bloco_notas.retrofit.RetrofitInitializer
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -31,6 +32,7 @@ class API {
 
     var sp: MinhaSharedPreferences = MinhaSharedPreferences()
     lateinit var alertDialog : AlertDialog
+    private val notaLista = ArrayList<Nota>()
 
     fun internetConectada(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -319,7 +321,8 @@ class API {
     // ---------------------------------------------------------- Nota ----------------------------------------------------------
 
     // pede á API a lista de notas
-    private fun buscarNotasAPI(token: String){
+    fun buscarNotasAPI(token: String, context: Context){
+        sp.init(context)
         // pede ao Retrofit para ler os dados recebidos da API
         val call = RetrofitInitializer()
             .notaService()
@@ -337,14 +340,21 @@ class API {
                 if (response.isSuccessful){
                     val responseBody = response.body()
                     val notaList = responseBody?.get("nota")
+                    notaLista.clear()
                     notaList?.forEach{ nota ->
                         // Obter dados
                         val emailUtilizador = nota.emailUtilizador
-                        val idNota = nota.idNota
-                        val titulo = nota.titulo
-                        val descricao = nota.descricao
-                        val data = nota.data
-                        println("Nota details: Utilizador - $emailUtilizador, IDNota - $idNota, Titulo - $titulo, Descricao - $descricao Data - $data")
+                        if( emailUtilizador == UtilizadorManager.buscarEMAIL().toString()){
+                            val idNota = nota.idNota
+                            val titulo = nota.titulo
+                            val descricao = nota.descricao
+                            val data = nota.data
+                            val id = nota.id
+                            val novaNota = Nota("$emailUtilizador", "$idNota", "$titulo", "$descricao", "$data", "$id")
+                            println(novaNota)
+                            notaLista.add(novaNota)
+                            sp.salvarNotas(notaLista)
+                        }
                     }
                 } else {
                     Log.e("RESPONSE_FAILURE", "Reponse not Successful: $response")

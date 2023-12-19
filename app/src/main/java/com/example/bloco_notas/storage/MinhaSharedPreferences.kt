@@ -12,7 +12,6 @@ import java.util.Date
 
 class MinhaSharedPreferences {
 
-    private var total: Int = 0
     private var ficheiro : String = "Spref"
     private lateinit var email : String
     private lateinit var sh : SharedPreferences
@@ -23,14 +22,10 @@ class MinhaSharedPreferences {
 
     }
 
-    fun guardarNota( listaNota:ArrayList<Nota>, titulo: String, descricao: String) {
-        total =sh.getInt("totalNotes", 0)
-        val id = total.toString()
-        total++
+    fun guardarNota( listaNota:ArrayList<Nota>,id:String, titulo: String, descricao: String) {
         val titulo1 = titulo
         val descricao1 = descricao
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
-        sh.edit().putInt("totalNotes", total).apply()
         val newNote = Nota(email,id, titulo1, descricao1,"$data", null)
         listaNota.add(newNote)
         salvarNotas(listaNota)
@@ -62,9 +57,10 @@ class MinhaSharedPreferences {
             val type = object : TypeToken<List<Nota>>() {}.type
             gson.fromJson(json, type) ?: emptyList()
         }
-    }
+   }
 
     fun apagarTudo( listaNota:ArrayList<Nota>){
+        sh.edit().putInt("totalNotes",0).apply()
         listaNota.clear()
         salvarNotas(listaNota)
     }
@@ -83,4 +79,13 @@ class MinhaSharedPreferences {
             listaNotasUtilizador
         }
     }
+
+    fun getTotal():Int{
+        return sh.getInt("totalNotes",0)
+    }
+
+    fun setTotal(t:Int){
+        sh.edit().putInt("totalNotes",t).apply()
+    }
+
 }
