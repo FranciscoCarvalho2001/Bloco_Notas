@@ -63,6 +63,10 @@ class ListaNotas : AppCompatActivity() {
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
 
+//        if(UtilizadorManager.buscarEMAIL()!=null){
+//            api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
+//        }
+
         // Configuração do layout e adapter para a RecyclerView
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         // Define o layout manager da RecyclerView
@@ -86,8 +90,6 @@ class ListaNotas : AppCompatActivity() {
         originalNotaLista.clear()
         // Adicionar as Notas atualizadas á lista
         originalNotaLista.addAll(sp.getNotas())
-
-        api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
         // Limpar a lista de Notas
         notaLista.clear()
         // Adicionar as Notas atualizadas á lista
@@ -268,6 +270,7 @@ class ListaNotas : AppCompatActivity() {
             loginMenuItem.setOnMenuItemClickListener{
                 api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
                 startActivity(Intent(this, Login::class.java))
+                finish()
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
             }
@@ -279,6 +282,7 @@ class ListaNotas : AppCompatActivity() {
             loginMenuItem.setTitle("Entrar/Registar")
             loginMenuItem.setOnMenuItemClickListener{
                 startActivity(Intent(this, Login::class.java))
+                finish()
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
             }

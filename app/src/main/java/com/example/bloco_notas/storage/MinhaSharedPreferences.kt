@@ -12,14 +12,18 @@ import java.util.Date
 
 class MinhaSharedPreferences {
 
-    private var ficheiro : String = "Spref"
+    private lateinit var ficheiro : String
     private lateinit var email : String
     private lateinit var sh : SharedPreferences
     fun init(context: Context) {
-        sh = context.getSharedPreferences(ficheiro, AppCompatActivity.MODE_PRIVATE)
         UtilizadorManager.init(context)
         email = UtilizadorManager.buscarEMAIL().toString()
-
+        if(email.isEmpty()){
+            ficheiro = "Spref1"
+        }else{
+            ficheiro = "Spref2"
+        }
+        sh = context.getSharedPreferences(ficheiro, AppCompatActivity.MODE_PRIVATE)
     }
 
     fun guardarNota( listaNota:ArrayList<Nota>,id:String, titulo: String, descricao: String) {
@@ -88,4 +92,7 @@ class MinhaSharedPreferences {
         sh.edit().putInt("totalNotes",t).apply()
     }
 
+    fun daNome():String{
+        return ficheiro
+    }
 }

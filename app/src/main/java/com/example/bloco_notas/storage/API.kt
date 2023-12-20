@@ -111,14 +111,13 @@ class API {
                 call: Call<LoginResponse>,
                 response: Response<LoginResponse>
             ) {
-
-                val responseBody = response.body()
-                UtilizadorManager.getUserFromResponse(responseBody)
-                TokenManager.getTokenFromResponse(responseBody)
-                Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
-                Log.e("RESPONSE", "Response : $responseBody")
-
                 if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    UtilizadorManager.getUserFromResponse(responseBody)
+                    TokenManager.getTokenFromResponse(responseBody)
+                    Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
+                    Log.e("RESPONSE", "Response : $responseBody")
+                    buscarNotasAPI(TokenManager.buscarToken().toString(),context)
                     context.startActivity(Intent(context, ListaNotas::class.java))
                     (context as AppCompatActivity).finish()
                 }
@@ -328,10 +327,10 @@ class API {
             .notaService()
             .listarNotas(autorizacao = "Bearer $token")
         // processa os dados recebidos
-        processarListaNotasAPI(call)
+        processarListaNotasAPI(call,context)
     }
     // processa lista de notas recebida da API
-    private fun processarListaNotasAPI(call: Call<Map<String, List<Nota>>>){
+    private fun processarListaNotasAPI(call: Call<Map<String, List<Nota>>>,context: Context){
         call.enqueue(object : Callback<Map<String, List<Nota>>> {
             override fun onResponse(
                 call: Call<Map<String, List<Nota>>>,
@@ -341,6 +340,9 @@ class API {
                     val responseBody = response.body()
                     val notaList = responseBody?.get("nota")
                     notaLista.clear()
+                    sp.apagarTudo(notaLista)
+                    var total = 0
+                    sp.setTotal(0)
                     notaList?.forEach{ nota ->
                         // Obter dados
                         val emailUtilizador = nota.emailUtilizador
@@ -351,11 +353,14 @@ class API {
                             val data = nota.data
                             val id = nota.id
                             val novaNota = Nota("$emailUtilizador", "$idNota", "$titulo", "$descricao", "$data", "$id")
-                            println(novaNota)
+                            println("$emailUtilizador $idNota $titulo $descricao $data $id $total")
                             notaLista.add(novaNota)
                             sp.salvarNotas(notaLista)
+                            total++
+                            sp.setTotal(idNota.toInt()+1)
                         }
                     }
+
                 } else {
                     Log.e("RESPONSE_FAILURE", "Reponse not Successful: $response")
                 }
@@ -420,9 +425,9 @@ class API {
     }
 
     // obtem os dados da nota para guardar
-    fun adicionarNotaAPI(idNota: String, titulo:String, descricao:String, token: String){
+    fun adicionarNotaAPI(idNota: String, utilizador:String,titulo:String, descricao:String, token: String,context: Context){
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
-        var nota = Nota("algo@algo.pt", idNota, titulo, descricao , "$data", null)
+        var nota = Nota(utilizador, idNota, titulo, descricao , "$data", null)
         addNotaAPI(token, nota) {
             if (it){
                 Log.e("Resposta", "Response: $it")
@@ -464,9 +469,9 @@ class API {
     }
 
     // pede á API para atualizar uma nota, fornecendo um ID
-    fun atualizarNotaAPI(id: String, idNota: String, titulo:String, descricao:String, token: String){
+    fun atualizarNotaAPI(id: String, utilizador:String,idNota: String, titulo:String, descricao:String, token: String){
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
-        var nota = Nota("algo@algo.pt", idNota, titulo, descricao, "$data", null)
+        var nota = Nota(utilizador, idNota, titulo, descricao, "$data", null)
         val notaWrapper = NotaWrapper(nota)
         updateNotaAPI(token, id, notaWrapper)
     }
