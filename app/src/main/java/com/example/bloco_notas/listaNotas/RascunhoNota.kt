@@ -80,7 +80,7 @@ class RascunhoNota : AppCompatActivity() {
             // Se o index é menor significa que é uma nova Nota
             if (index < 0) {
                 var total =sp.getTotal()
-                api.adicionarNotaAPI("${total}",utilizadorEmail,"${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}",this)
+//                api.adicionarNotaAPI("${total}",utilizadorEmail,"${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}",this)
                 Toast.makeText(this, "$total", Toast.LENGTH_SHORT).show()
                 sp.guardarNota(listaNota,total.toString(),titulo.text.toString(),descricao.text.toString())
                 total++
@@ -88,7 +88,7 @@ class RascunhoNota : AppCompatActivity() {
 
             } // Se não é uma Nota existente portanto será atualizada
             else {
-                api.atualizarNotaAPI("${listaNota[index].id}",listaNota[index].emailUtilizador,"$index","${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}")
+//                api.atualizarNotaAPI("${listaNota[index].id}",listaNota[index].emailUtilizador,"$index","${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}")
                 sp.atualizarNota(index,listaNota,titulo.text.toString(),descricao.text.toString())
 
             }
@@ -102,7 +102,7 @@ class RascunhoNota : AppCompatActivity() {
             // Seo index é maior ou igual que 0 significa que é uma Nota existente portanto será apagada
             if (index >= 0) {
                 sp.apagarNota(index,listaNota)
-                api.apagarNotaAPI("${TokenManager.buscarToken()}","${listaNota[index].id}")
+//                api.apagarNotaAPI("${TokenManager.buscarToken()}","${listaNota[index].id}")
             } else {
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
             }

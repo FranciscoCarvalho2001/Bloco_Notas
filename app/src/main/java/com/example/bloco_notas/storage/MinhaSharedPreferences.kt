@@ -95,4 +95,32 @@ class MinhaSharedPreferences {
     fun daNome():String{
         return ficheiro
     }
+
+    fun salvarNotasAPISP(notas: List<Nota>) {
+        val gson = Gson()
+        val json = gson.toJson(notas)
+        sh.edit().putString("notasAPI", json).apply()
+    }
+
+    fun getNotasAPISP(): List<Nota> {
+        val gson = Gson()
+        val json = sh.getString("notasAPI", "")
+        return if (json.isNullOrEmpty()) {
+            emptyList()
+        } else {
+            val type = object : TypeToken<List<Nota>>() {}.type
+            gson.fromJson(json, type) ?: emptyList()
+        }
+    }
+
+    fun buscarFlag(key : String): Boolean {
+        // Retorna true se a função já foi executada, caso contrário, retorna false
+        return sh.getBoolean(key, true)
+    }
+
+   fun marcarFlag(key : String, flag: Boolean) {
+        // Marca a função como executada no SharedPreferences
+        sh.edit().putBoolean(key, flag).apply()
+    }
+
 }

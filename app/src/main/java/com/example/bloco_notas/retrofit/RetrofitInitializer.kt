@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RetrofitInitializer {
 
     // url da API
-    private val host = "https://api.sheety.co/e4662cd84a062173ebe911fd11545359/blocoNotasApi/"
+    private val host = "https://api.sheety.co/1837d39f0cc8af4ce599d734f36f1229/blocoNotasApi/"
     private val url = "https://script.google.com/macros/s/AKfycbyqcurpSI4RHz4gyChcU-Kz3vjclwNizphM7ou8q_Pc-PvhplWKaWve6IrwjDAQseZs/"
 
     // definir os dados lidos da API para serem usados no Retrofit

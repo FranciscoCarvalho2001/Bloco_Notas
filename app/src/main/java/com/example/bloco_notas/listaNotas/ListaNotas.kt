@@ -3,6 +3,7 @@ package com.example.bloco_notas.listaNotas
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -21,10 +22,12 @@ import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
 import com.example.bloco_notas.storage.MinhaSharedPreferences
+import com.example.bloco_notas.storage.Sincronizar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -37,25 +40,28 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var ListaDeNotas : RecyclerView
     private lateinit var searchBar : SearchView
     private var index: Int=0
-    private lateinit var sp : MinhaSharedPreferences
-    private lateinit var api : API
+    private var sp : MinhaSharedPreferences = MinhaSharedPreferences()
+    private var api : API = API()
     private lateinit var apagaTudo : ImageButton
     private lateinit var drawerLayout :DrawerLayout
     private lateinit var utilizadorEmail :String
     private lateinit var utilizadorToken :String
+    private var sync : Sincronizar = Sincronizar()
 
     private val handler = android.os.Handler()
     private val delay: Long = 3000 // 3 segundos
     private var isDialogShowing = false
+
+    private var funcaoExecutada = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_notas)
 
         //inicialização das variaveis
-        sp = MinhaSharedPreferences()
+
         sp.init(this)
-        api = API()
+        sync.init(this)
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
         searchBar = findViewById(R.id.searchBar)
         apagaTudo=findViewById(R.id.apagarTudo)
@@ -63,10 +69,15 @@ class ListaNotas : AppCompatActivity() {
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
 
-//        if(UtilizadorManager.buscarEMAIL()!=null){
-//            api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
+//        if (sp.buscarFlag("executar")) {
+//            if(UtilizadorManager.buscarEMAIL()!=null){
+//                api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
+//            }
+//
+//            sp.marcarFlag("executar", false)
 //        }
 
+//        sync.iniciarSincronizacao(this)
         // Configuração do layout e adapter para a RecyclerView
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         // Define o layout manager da RecyclerView
@@ -82,20 +93,24 @@ class ListaNotas : AppCompatActivity() {
             index = notaLista.indexOf(clickedNote)
             intent.putExtra("objeto", index)
             startActivity(intent)
+
         }
         // Define o adapter na RecyclerView
         ListaDeNotas.adapter = adapter
-
-        // Limpar a lista de Notas
-        originalNotaLista.clear()
-        // Adicionar as Notas atualizadas á lista
-        originalNotaLista.addAll(sp.getNotas())
-        // Limpar a lista de Notas
-        notaLista.clear()
-        // Adicionar as Notas atualizadas á lista
-        notaLista.addAll(sp.getNotas())
-        // Notifica as mudanças da lista para o RecyclerView
-        adapter.notifyDataSetChanged()
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(5000L)
+            // Limpar a lista de Notas
+            originalNotaLista.clear()
+            // Adicionar as Notas atualizadas á lista
+            originalNotaLista.addAll(sp.getNotas())
+            // Limpar a lista de Notas
+            notaLista.clear()
+            // Adicionar as Notas atualizadas á lista
+            notaLista.addAll(sp.getNotas())
+            Log.e("Response", "sync: ${notaLista[sp.getTotal()-1]}")
+            // Notifica as mudanças da lista para o RecyclerView
+            adapter.notifyDataSetChanged()
+        }
 
         // Criação e inicialização da variavel do botão flutuante
         val fab: FloatingActionButton = findViewById(R.id.Adicionar)
@@ -268,6 +283,9 @@ class ListaNotas : AppCompatActivity() {
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
             loginMenuItem.setOnMenuItemClickListener{
+                sync.sync(this)
+//                sync.pararSincronizacao()
+//                sp.marcarFlag("executar", true)
                 api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
                 startActivity(Intent(this, Login::class.java))
                 finish()

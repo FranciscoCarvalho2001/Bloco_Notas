@@ -115,7 +115,7 @@ class API {
                     val responseBody = response.body()
                     UtilizadorManager.getUserFromResponse(responseBody)
                     TokenManager.getTokenFromResponse(responseBody)
-                    Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
                     Log.e("RESPONSE", "Response : $responseBody")
                     buscarNotasAPI(TokenManager.buscarToken().toString(),context)
                     context.startActivity(Intent(context, ListaNotas::class.java))
@@ -332,32 +332,37 @@ class API {
     // processa lista de notas recebida da API
     private fun processarListaNotasAPI(call: Call<Map<String, List<Nota>>>,context: Context){
         call.enqueue(object : Callback<Map<String, List<Nota>>> {
+
             override fun onResponse(
                 call: Call<Map<String, List<Nota>>>,
                 response: Response<Map<String, List<Nota>>>
             ) {
+                notaLista.clear()
+                var total = 0
+                sp.salvarNotas(notaLista)
+                sp.salvarNotasAPISP(notaLista)
+                Toast.makeText(context, "fez2", Toast.LENGTH_SHORT).show()
                 if (response.isSuccessful){
                     val responseBody = response.body()
                     val notaList = responseBody?.get("nota")
-                    notaLista.clear()
-                    sp.apagarTudo(notaLista)
-                    var total = 0
-                    sp.setTotal(0)
                     notaList?.forEach{ nota ->
                         // Obter dados
                         val emailUtilizador = nota.emailUtilizador
                         if( emailUtilizador == UtilizadorManager.buscarEMAIL().toString()){
+                            total++
+                            sp.setTotal(total)
                             val idNota = nota.idNota
                             val titulo = nota.titulo
                             val descricao = nota.descricao
                             val data = nota.data
                             val id = nota.id
                             val novaNota = Nota("$emailUtilizador", "$idNota", "$titulo", "$descricao", "$data", "$id")
-                            println("$emailUtilizador $idNota $titulo $descricao $data $id $total")
+                            Log.e("UT", "utilizdor: ${emailUtilizador}")
                             notaLista.add(novaNota)
                             sp.salvarNotas(notaLista)
-                            total++
-                            sp.setTotal(idNota.toInt()+1)
+                            sp.salvarNotasAPISP(notaLista)
+
+                            Toast.makeText(context, "fez", Toast.LENGTH_SHORT).show()
                         }
                     }
 
