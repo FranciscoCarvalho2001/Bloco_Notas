@@ -107,7 +107,7 @@ class ListaNotas : AppCompatActivity() {
             notaLista.clear()
             // Adicionar as Notas atualizadas á lista
             notaLista.addAll(sp.getNotas())
-            Log.e("Response", "sync: ${notaLista[sp.getTotal()-1]}")
+//            Log.e("Response", "sync: ${notaLista[sp.getTotal()-1]}")
             // Notifica as mudanças da lista para o RecyclerView
             adapter.notifyDataSetChanged()
         }

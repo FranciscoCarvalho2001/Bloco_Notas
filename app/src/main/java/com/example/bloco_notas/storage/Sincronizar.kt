@@ -107,7 +107,8 @@ class Sincronizar {
 
         // Remova as notas que precisam ser removidas
         notasParaRemover.forEach { notaParaRemover ->
-            api.apagarNotaAPI(notaParaRemover.id.toString(), TokenManager.buscarToken().toString())
+            //api.apagarNotaAPI(notaParaRemover.id.toString(), TokenManager.buscarToken().toString())
+            api.atualizarNotaAPI(notaParaRemover.id.toString(), "dummy", "dummy", "dummy", "dummy", TokenManager.buscarToken().toString())
             Toast.makeText(context, "delete", Toast.LENGTH_SHORT).show()
             Log.e("Response", "sync: delete")
         }
