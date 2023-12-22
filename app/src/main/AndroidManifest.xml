@@ -16,23 +16,35 @@
         android:theme="@style/Theme.Bloco_Notas"
         tools:targetApi="31">
         <activity
-            android:name=".PaginaInicial"
+            android:name=".Acerca"
             android:exported="false" />
+        <activity
+            android:name=".Definicoes"
+            android:exported="false" />
+        <activity
+            android:name=".PaginaInicial"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".listaNotas.RascunhoNota"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".autenticacao.Login"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".autenticacao.Registar"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".listaNotas.ListaNotas"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SplashScreen"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

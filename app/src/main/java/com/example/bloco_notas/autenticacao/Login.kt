@@ -37,6 +37,7 @@ class Login : AppCompatActivity() {
         loginEmail = findViewById(R.id.loginEmail)
         loginPassword = findViewById(R.id.loginPassword)
         loginButton = findViewById(R.id.loginButton)
+        mudarPagina = findViewById(R.id.mudarPagina)
 
 
         loginButton.setOnClickListener {

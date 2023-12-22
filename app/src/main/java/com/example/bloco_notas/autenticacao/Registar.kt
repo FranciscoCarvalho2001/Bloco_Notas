@@ -45,9 +45,6 @@ class Registar : AppCompatActivity() {
         registoEmail = findViewById(R.id.registoEmail)
         registoPassword = findViewById(R.id.registoPassword)
         registoButton = findViewById(R.id.registoButton)
-        getButton = findViewById(R.id.getButton)
-        updateButton = findViewById(R.id.updateButton)
-        deleteButton = findViewById(R.id.deleteButton)
         mudarParaLoginButton = findViewById(R.id.mudarParaLoginButton)
 
         registoButton.setOnClickListener{
@@ -57,24 +54,24 @@ class Registar : AppCompatActivity() {
             api.registarUtilizadorAPI(email, password, this@Registar)
         }
 
-        getButton.setOnClickListener{
+        //getButton.setOnClickListener{
             //api.buscarUtilizadoresAPI()
-            val id = UtilizadorManager.buscarID().toString()
-            val token = TokenManager.buscarToken().toString()
-            api.buscarUtilizadorPorIdAPI(id, token, this@Registar)
-        }
+            //val id = UtilizadorManager.buscarID().toString()
+            //val token = TokenManager.buscarToken().toString()
+            //api.buscarUtilizadorPorIdAPI(id, token, this@Registar)
+        //}
 
-        updateButton.setOnClickListener {
-            val token = TokenManager.buscarToken().toString()
-            val id = UtilizadorManager.buscarID().toString()
-            api.atualizarUtilizadorAPI(token, id, this@Registar)
-        }
+        //updateButton.setOnClickListener {
+          //  val token = TokenManager.buscarToken().toString()
+           // val id = UtilizadorManager.buscarID().toString()
+           // api.atualizarUtilizadorAPI(token, id, this@Registar)
+        //}
 
-        deleteButton.setOnClickListener {
-            val token = TokenManager.buscarToken().toString()
-            val id = UtilizadorManager.buscarID().toString()
-            api.apagarUtilizadorAPI(token, id, this@Registar)
-        }
+        //deleteButton.setOnClickListener {
+            //val token = TokenManager.buscarToken().toString()
+            //val id = UtilizadorManager.buscarID().toString()
+            //api.apagarUtilizadorAPI(token, id, this@Registar)
+        //}
 
         mudarParaLoginButton.setOnClickListener {
             startActivity(Intent(this@Registar, Login::class.java))
