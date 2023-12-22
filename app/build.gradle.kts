@@ -59,4 +59,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1")
+
+    // About Page Library
+    implementation("io.github.medyo:android-about-page:2.0.0")
 }

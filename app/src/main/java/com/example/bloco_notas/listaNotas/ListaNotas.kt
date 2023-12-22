@@ -14,6 +14,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.bloco_notas.Acerca
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.TokenManager
@@ -217,6 +218,10 @@ class ListaNotas : AppCompatActivity() {
                 // Adicione mais casos conforme necessário
 
                 R.id.nav_about -> {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val intent = Intent(this@ListaNotas, Acerca::class.java)
+                        startActivity(intent)
+                    }
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
