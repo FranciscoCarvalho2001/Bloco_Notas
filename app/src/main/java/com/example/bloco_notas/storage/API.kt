@@ -19,7 +19,8 @@ import com.example.bloco_notas.models.NotaWrapper
 import com.example.bloco_notas.models.Utilizador
 import com.example.bloco_notas.models.UtilizadorWrapper
 import com.example.bloco_notas.retrofit.RetrofitInitializer
-import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -117,7 +118,7 @@ class API {
                     TokenManager.getTokenFromResponse(responseBody)
                     //Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
                     Log.e("RESPONSE", "Response : $responseBody")
-                    buscarNotasAPI(TokenManager.buscarToken().toString(),context)
+                    //buscarNotasAPI(TokenManager.buscarToken().toString(),context)
                     context.startActivity(Intent(context, ListaNotas::class.java))
                     (context as AppCompatActivity).finish()
                 }
@@ -320,61 +321,58 @@ class API {
     // ---------------------------------------------------------- Nota ----------------------------------------------------------
 
     // pede á API a lista de notas
-    fun buscarNotasAPI(token: String, context: Context){
-        sp.init(context)
-        // pede ao Retrofit para ler os dados recebidos da API
-        val call = RetrofitInitializer()
-            .notaService()
-            .listarNotas(autorizacao = "Bearer $token")
-        // processa os dados recebidos
-        processarListaNotasAPI(call,context)
-    }
-    // processa lista de notas recebida da API
-    private fun processarListaNotasAPI(call: Call<Map<String, List<Nota>>>,context: Context){
-        call.enqueue(object : Callback<Map<String, List<Nota>>> {
+    // Função suspensa para buscar notas da API
+    suspend fun buscarNotasAPI(token: String, context: Context): List<Nota> {
+        return withContext(Dispatchers.IO) {
+            sp.init(context)
+            // pede ao Retrofit para ler os dados recebidos da API
+            val call = RetrofitInitializer()
+                .notaService()
+                .listarNotas(autorizacao = "Bearer $token")
 
-            override fun onResponse(
-                call: Call<Map<String, List<Nota>>>,
-                response: Response<Map<String, List<Nota>>>
-            ) {
-                notaLista.clear()
-                var total = 0
-                sp.salvarNotas(notaLista)
-                sp.salvarNotasAPISP(notaLista)
-                Toast.makeText(context, "fez2", Toast.LENGTH_SHORT).show()
-                if (response.isSuccessful){
+            try {
+                val response = call.execute()
+                if (response.isSuccessful) {
                     val responseBody = response.body()
-                    val notaList = responseBody?.get("nota")
-                    notaList?.forEach{ nota ->
-                        // Obter dados
-                        val emailUtilizador = nota.emailUtilizador
-                        if( emailUtilizador == UtilizadorManager.buscarEMAIL().toString()){
-                            total++
-                            sp.setTotal(total)
-                            val idNota = nota.idNota
-                            val titulo = nota.titulo
-                            val descricao = nota.descricao
-                            val data = nota.data
-                            val id = nota.id
-                            val novaNota = Nota("$emailUtilizador", "$idNota", "$titulo", "$descricao", "$data", "$id")
-                            Log.e("UT", "utilizdor: ${emailUtilizador}")
-                            notaLista.add(novaNota)
-                            sp.salvarNotas(notaLista)
-                            sp.salvarNotasAPISP(notaLista)
-
-                            Toast.makeText(context, "fez", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-
+                    val notaList = responseBody?.get("nota") ?: emptyList()
+                    processarListaNotasAPI(notaList)
                 } else {
                     Log.e("RESPONSE_FAILURE", "Reponse not Successful: $response")
+                    emptyList()
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("API_CALL_FAILURE", "API call failed: ${e.message}")
+                emptyList()
             }
-            override fun onFailure(call: Call<Map<String, List<Nota>>>, t: Throwable) {
-                t.printStackTrace()
-                Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
+        }
+    }
+
+    // Função para processar a lista de notas
+    private fun processarListaNotasAPI(notaList: List<Nota>): List<Nota> {
+        val notaLista = mutableListOf<Nota>()
+
+        notaList.forEach { nota ->
+            val emailUtilizador = nota.emailUtilizador
+            if (emailUtilizador == UtilizadorManager.buscarEMAIL().toString()) {
+                val idNota = nota.idNota
+                val titulo = nota.titulo
+                val descricao = nota.descricao
+                val data = nota.data
+                val id = nota.id
+                val novaNota = Nota(
+                    "$emailUtilizador",
+                    "$idNota",
+                    "$titulo",
+                    "$descricao",
+                    "$data",
+                    "$id"
+                )
+                notaLista.add(novaNota)
             }
-        })
+        }
+
+        return notaLista
     }
 
     // pede á API uma nota, fornecendo um ID

@@ -3,7 +3,7 @@ package com.example.bloco_notas.listaNotas
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import kotlinx.coroutines.async
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -27,6 +27,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,6 +41,7 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var adapter: ListaNotasAdapter
     private lateinit var ListaDeNotas : RecyclerView
     private lateinit var searchBar : SearchView
+    private lateinit var fab : FloatingActionButton
     private var index: Int=0
     private var sp : MinhaSharedPreferences = MinhaSharedPreferences()
     private var api : API = API()
@@ -63,6 +66,7 @@ class ListaNotas : AppCompatActivity() {
         sp.init(this)
         sync.init(this)
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
+        fab = findViewById(R.id.Adicionar)
         searchBar = findViewById(R.id.searchBar)
         apagaTudo=findViewById(R.id.apagarTudo)
         utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
@@ -97,23 +101,50 @@ class ListaNotas : AppCompatActivity() {
         }
         // Define o adapter na RecyclerView
         ListaDeNotas.adapter = adapter
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(5000L)
+
+        GlobalScope.launch(Dispatchers.Main) {
+            if (!utilizadorEmail.isEmpty()) {
+                if (sp.buscarFlag("buscar")) {
+                    val notas = api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
+                    sp.salvarNotas(notas)
+                    sp.salvarNotasAPISP(notas)
+                    sp.marcarFlag("buscar", false)
+                    sp.setTotal(notas.size)
+                    delay(1000)
+                }
+            }
+
             // Limpar a lista de Notas
             originalNotaLista.clear()
-            // Adicionar as Notas atualizadas á lista
+            // Adicionar as Notas atualizadas à lista
             originalNotaLista.addAll(sp.getNotas())
             // Limpar a lista de Notas
             notaLista.clear()
-            // Adicionar as Notas atualizadas á lista
+            // Adicionar as Notas atualizadas à lista
             notaLista.addAll(sp.getNotas())
-//            Log.e("Response", "sync: ${notaLista[sp.getTotal()-1]}")
+
             // Notifica as mudanças da lista para o RecyclerView
             adapter.notifyDataSetChanged()
+
+            botaoAdicionarNota()
+
+            // Notifica as mudanças da lista para o RecyclerView
+            adapter.notifyDataSetChanged()
+
+            barraPesquisa()
+
+            eventoApagatuTudo()
+
+            setupDrawerLayout()
+
+            checkInternet()
+
         }
 
-        // Criação e inicialização da variavel do botão flutuante
-        val fab: FloatingActionButton = findViewById(R.id.Adicionar)
+    }
+
+
+    private fun botaoAdicionarNota(){
         // Evento ao carregar no botão
         fab.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
@@ -125,33 +156,7 @@ class ListaNotas : AppCompatActivity() {
             }
 
         }
-
-        // Notifica as mudanças da lista para o RecyclerView
-        adapter.notifyDataSetChanged()
-
-        searchBar.clearFocus()
-        // Evento para ao escrever na searchView serem mostradas as Notas correspondentes ao texto inserido
-        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(p0: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(texto: String): Boolean {
-                // O código que você deseja executar quando o texto da consulta é alterado.
-                procurarNota(texto)
-                return true
-            }
-        })
-
-        // Evento para apagar todas as Notas ao carregar no botão
-        apagaTudo.setOnClickListener {
-            deleteAll()
-        }
-        setupDrawerLayout()
-
-        checkInternet()
     }
-
     // faz check para saber se tem conexão á Internet
     private fun checkInternet() {
         val builder = AlertDialog.Builder(this@ListaNotas)
@@ -177,6 +182,22 @@ class ListaNotas : AppCompatActivity() {
         }, delay)
     }
 
+    private fun barraPesquisa(){
+        searchBar.clearFocus()
+        // Evento para ao escrever na searchView serem mostradas as Notas correspondentes ao texto inserido
+        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(texto: String): Boolean {
+                // O código que você deseja executar quando o texto da consulta é alterado.
+                procurarNota(texto)
+                return true
+            }
+        })
+    }
+
     // Função para procurar Notas na search bar
     private fun procurarNota(query: String) {
         val procListaNota = ArrayList<Nota>()
@@ -196,6 +217,13 @@ class ListaNotas : AppCompatActivity() {
             notaLista.addAll(procListaNota)
         }
         adapter.notifyDataSetChanged()
+    }
+
+    // Evento para apagar todas as Notas ao carregar no botão
+    private fun eventoApagatuTudo(){
+        apagaTudo.setOnClickListener {
+            deleteAll()
+        }
     }
 
     // Função para apagar todas as notas com a ajuda do AlertDialog
@@ -285,7 +313,7 @@ class ListaNotas : AppCompatActivity() {
             loginMenuItem.setOnMenuItemClickListener{
                 sync.sync(this)
 //                sync.pararSincronizacao()
-//                sp.marcarFlag("executar", true)
+                sp.marcarFlag("buscar", true)
                 api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
                 startActivity(Intent(this, Login::class.java))
                 finish()
