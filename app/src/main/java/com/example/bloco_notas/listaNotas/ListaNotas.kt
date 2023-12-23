@@ -21,10 +21,13 @@ import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
 import com.example.bloco_notas.storage.MinhaSharedPreferences
+import com.example.bloco_notas.storage.Sincronizar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -36,28 +39,38 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var adapter: ListaNotasAdapter
     private lateinit var ListaDeNotas : RecyclerView
     private lateinit var searchBar : SearchView
+    private lateinit var fab : FloatingActionButton
     private var index: Int=0
-    private lateinit var sp : MinhaSharedPreferences
-    private lateinit var api : API
+    private var sp : MinhaSharedPreferences = MinhaSharedPreferences()
+    private var api : API = API()
     private lateinit var apagaTudo : ImageButton
     private lateinit var drawerLayout :DrawerLayout
     private lateinit var utilizadorEmail :String
     private lateinit var utilizadorToken :String
+    private var sync : Sincronizar = Sincronizar()
+
+    private val handler = android.os.Handler()
+    private val delay: Long = 3000 // 3 segundos
+    private var isDialogShowing = false
+
+    private var funcaoExecutada = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_notas)
 
         //inicialização das variaveis
-        sp = MinhaSharedPreferences()
+
         sp.init(this)
-        api = API()
+        sync.init(this)
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
+        fab = findViewById(R.id.Adicionar)
         searchBar = findViewById(R.id.searchBar)
         apagaTudo=findViewById(R.id.apagarTudo)
         utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
+        sp.marcarFlag("internet", true)
 
         // Configuração do layout e adapter para a RecyclerView
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -74,23 +87,65 @@ class ListaNotas : AppCompatActivity() {
             index = notaLista.indexOf(clickedNote)
             intent.putExtra("objeto", index)
             startActivity(intent)
+
         }
         // Define o adapter na RecyclerView
         ListaDeNotas.adapter = adapter
 
-        // Limpar a lista de Notas
-        originalNotaLista.clear()
-        // Adicionar as Notas atualizadas á lista
-        originalNotaLista.addAll(sp.getNotas())
-        // Limpar a lista de Notas
-        notaLista.clear()
-        // Adicionar as Notas atualizadas á lista
-        notaLista.addAll(sp.buscarNotasUtilizador())
-        // Notifica as mudanças da lista para o RecyclerView
-        adapter.notifyDataSetChanged()
+        GlobalScope.launch(Dispatchers.Main) {
 
-        // Criação e inicialização da variavel do botão flutuante
-        val fab: FloatingActionButton = findViewById(R.id.Adicionar)
+            if (!utilizadorEmail.isEmpty()) {
+                if (sp.buscarFlag("buscar")) {
+                    val notas = api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
+                    sp.salvarNotas(notas)
+                    sp.salvarNotasAPISP(notas)
+                    sp.marcarFlag("buscar", false)
+                    sp.setTotal(notas.size)
+                    delay(1000)
+                }
+            }
+
+
+            // Limpar a lista de Notas
+            originalNotaLista.clear()
+            // Adicionar as Notas atualizadas à lista
+            originalNotaLista.addAll(sp.getNotas())
+            // Limpar a lista de Notas
+            notaLista.clear()
+            // Adicionar as Notas atualizadas à lista
+            notaLista.addAll(sp.getNotas())
+
+            // Notifica as mudanças da lista para o RecyclerView
+            adapter.notifyDataSetChanged()
+
+            botaoAdicionarNota()
+
+            barraPesquisa()
+
+            eventoApagatuTudo()
+
+            setupDrawerLayout()
+
+            Toast.makeText(this@ListaNotas, "porque", Toast.LENGTH_SHORT).show()
+            if(sp.buscarFlag("logado")){
+                if(sync.sync(this@ListaNotas)){
+                    delay(5000)
+                    Toast.makeText(this@ListaNotas, "logado2", Toast.LENGTH_SHORT).show()
+                    val notas = api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
+                    sp.salvarNotasAPISP(notas)
+                    sp.marcarFlag("logado", false)
+                    sp.setTotal(notas.size)
+                }
+            }
+
+            checkInternet()
+
+        }
+
+    }
+
+
+    private fun botaoAdicionarNota(){
         // Evento ao carregar no botão
         fab.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
@@ -100,8 +155,60 @@ class ListaNotas : AppCompatActivity() {
                 intent.putExtra("objeto",index)
                 startActivity(intent)
             }
-        }
 
+        }
+    }
+    // faz check para saber se tem conexão á Internet
+    private fun checkInternet() {
+        val builder = AlertDialog.Builder(this@ListaNotas)
+        builder.setTitle("Sem Conexão á Internet!")
+        builder.setMessage("Por favor conecte-se á Internet para poder usar a aplicação ou utilize o modo convidado")
+        builder.setPositiveButton("Convidado") { dialog, _ ->
+            dialog.dismiss()
+            isDialogShowing = false
+            UtilizadorManager.apagarUtilizador()
+            TokenManager.apagarToken()
+            sp.marcarFlag("buscar", true)
+            sp.marcarFlag("logado", false)
+            finish()
+            startActivity(Intent(this@ListaNotas, ListaNotas::class.java))
+        }
+        builder.setNegativeButton("Sair") { dialog, _ ->
+            UtilizadorManager.apagarUtilizador()
+            TokenManager.apagarToken()
+            sp.marcarFlag("buscar", true)
+            sp.marcarFlag("logado", false)
+            finishAffinity();
+            System.exit(0);}
+        val dialog = builder.create()
+
+        handler.postDelayed(object : Runnable{
+            override fun run() {
+                if(utilizadorEmail.isNotEmpty()) {
+                    if (!api.internetConectada(this@ListaNotas) && !isDialogShowing) {
+                        if (sp.buscarFlag("internet")) {
+                            dialog.show()
+                            isDialogShowing = true
+                            sp.marcarFlag("internet", false)
+
+                        }
+                    } else if (api.internetConectada(this@ListaNotas) && isDialogShowing) {
+                        dialog.dismiss()
+                        isDialogShowing = false
+                        if (!sp.buscarFlag("internet")) {
+                            Toast.makeText(this@ListaNotas, "Tem internet", Toast.LENGTH_SHORT)
+                                .show()
+
+                        }
+                        sp.marcarFlag("internet", true)
+                    }
+                }
+                handler.postDelayed(this, delay)
+            }
+        }, delay)
+    }
+
+    private fun barraPesquisa(){
         searchBar.clearFocus()
         // Evento para ao escrever na searchView serem mostradas as Notas correspondentes ao texto inserido
         searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -115,12 +222,6 @@ class ListaNotas : AppCompatActivity() {
                 return true
             }
         })
-
-        // Evento para apagar todas as Notas ao carregar no botão
-        apagaTudo.setOnClickListener {
-            deleteAll()
-        }
-        setupDrawerLayout()
     }
 
     // Função para procurar Notas na search bar
@@ -142,6 +243,13 @@ class ListaNotas : AppCompatActivity() {
             notaLista.addAll(procListaNota)
         }
         adapter.notifyDataSetChanged()
+    }
+
+    // Evento para apagar todas as Notas ao carregar no botão
+    private fun eventoApagatuTudo(){
+        apagaTudo.setOnClickListener {
+            deleteAll()
+        }
     }
 
     // Função para apagar todas as notas com a ajuda do AlertDialog
@@ -224,24 +332,27 @@ class ListaNotas : AppCompatActivity() {
             }
         }
         if(!utilizadorEmail.isEmpty()){
-
             nome.text= utilizadorEmail
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
             loginMenuItem.setOnMenuItemClickListener{
+                sync.sync(this)
+                sp.marcarFlag("buscar", true)
+                sp.marcarFlag("logado", false)
                 api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
                 startActivity(Intent(this, Login::class.java))
+                finish()
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
             }
 
         }else{
-
             nome.text= "Convidado"
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.logout))
             loginMenuItem.setTitle("Entrar/Registar")
             loginMenuItem.setOnMenuItemClickListener{
                 startActivity(Intent(this, Login::class.java))
+                finish()
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
             }
@@ -257,4 +368,6 @@ class ListaNotas : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+
 }
