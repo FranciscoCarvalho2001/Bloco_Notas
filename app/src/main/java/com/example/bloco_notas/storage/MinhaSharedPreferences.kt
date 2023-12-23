@@ -12,25 +12,24 @@ import java.util.Date
 
 class MinhaSharedPreferences {
 
-    private var total: Int = 0
-    private var ficheiro : String = "Spref"
+    private lateinit var ficheiro : String
     private lateinit var email : String
     private lateinit var sh : SharedPreferences
     fun init(context: Context) {
-        sh = context.getSharedPreferences(ficheiro, AppCompatActivity.MODE_PRIVATE)
         UtilizadorManager.init(context)
         email = UtilizadorManager.buscarEMAIL().toString()
-
+        if(email.isEmpty()){
+            ficheiro = "Spref1"
+        }else{
+            ficheiro = "Spref2"
+        }
+        sh = context.getSharedPreferences(ficheiro, AppCompatActivity.MODE_PRIVATE)
     }
 
-    fun guardarNota( listaNota:ArrayList<Nota>, titulo: String, descricao: String) {
-        total =sh.getInt("totalNotes", 0)
-        val id = total.toString()
-        total++
+    fun guardarNota( listaNota:ArrayList<Nota>,id:String, titulo: String, descricao: String) {
         val titulo1 = titulo
         val descricao1 = descricao
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
-        sh.edit().putInt("totalNotes", total).apply()
         val newNote = Nota(email,id, titulo1, descricao1,"$data", null)
         listaNota.add(newNote)
         salvarNotas(listaNota)
@@ -62,9 +61,10 @@ class MinhaSharedPreferences {
             val type = object : TypeToken<List<Nota>>() {}.type
             gson.fromJson(json, type) ?: emptyList()
         }
-    }
+   }
 
     fun apagarTudo( listaNota:ArrayList<Nota>){
+        sh.edit().putInt("totalNotes",0).apply()
         listaNota.clear()
         salvarNotas(listaNota)
     }
@@ -83,4 +83,44 @@ class MinhaSharedPreferences {
             listaNotasUtilizador
         }
     }
+
+    fun getTotal():Int{
+        return sh.getInt("totalNotes",0)
+    }
+
+    fun setTotal(t:Int){
+        sh.edit().putInt("totalNotes",t).apply()
+    }
+
+    fun daNome():String{
+        return ficheiro
+    }
+
+    fun salvarNotasAPISP(notas: List<Nota>) {
+        val gson = Gson()
+        val json = gson.toJson(notas)
+        sh.edit().putString("notasAPI", json).apply()
+    }
+
+    fun getNotasAPISP(): List<Nota> {
+        val gson = Gson()
+        val json = sh.getString("notasAPI", "")
+        return if (json.isNullOrEmpty()) {
+            emptyList()
+        } else {
+            val type = object : TypeToken<List<Nota>>() {}.type
+            gson.fromJson(json, type) ?: emptyList()
+        }
+    }
+
+    fun buscarFlag(key : String): Boolean {
+        // Retorna true se a função já foi executada, caso contrário, retorna false
+        return sh.getBoolean(key, true)
+    }
+
+   fun marcarFlag(key : String, flag: Boolean) {
+        // Marca a função como executada no SharedPreferences
+        sh.edit().putBoolean(key, flag).apply()
+    }
+
 }
