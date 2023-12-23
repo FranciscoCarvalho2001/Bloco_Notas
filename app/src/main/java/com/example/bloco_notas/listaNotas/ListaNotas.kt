@@ -126,8 +126,6 @@ class ListaNotas : AppCompatActivity() {
 
             setupDrawerLayout()
 
-            checkInternet()
-
             Toast.makeText(this@ListaNotas, "porque", Toast.LENGTH_SHORT).show()
             if(sp.buscarFlag("logado")){
                 if(sync.sync(this@ListaNotas)){
@@ -139,6 +137,8 @@ class ListaNotas : AppCompatActivity() {
                     sp.setTotal(notas.size)
                 }
             }
+
+            checkInternet()
 
         }
 
