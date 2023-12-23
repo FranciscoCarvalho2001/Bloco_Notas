@@ -40,7 +40,7 @@ class Sincronizar {
         handler.removeCallbacksAndMessages(null)
     }
 
-    fun sync(context: Context) {
+    fun sync(context: Context):Boolean {
         // Obtenha as listas de notas dos SharedPreferences e da API
         val notasSp = sp.getNotas()
         val notasApi = sp.getNotasAPISP()
@@ -112,6 +112,7 @@ class Sincronizar {
             Toast.makeText(context, "delete", Toast.LENGTH_SHORT).show()
             Log.e("Response", "sync: delete")
         }
+        return true
     }
 
 

@@ -26,8 +26,10 @@ class SplashScreen : AppCompatActivity() {
             delay(3000L)
             if(utilizadroEmail.isNotEmpty()) {
                 startActivity(Intent(this@SplashScreen, ListaNotas::class.java))
+                sp.marcarFlag("logado",true)
             }else{
                 startActivity(Intent(this@SplashScreen, Login::class.java))
+                sp.marcarFlag("logado",false)
             }
             finish()
         }

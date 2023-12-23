@@ -3,7 +3,6 @@ package com.example.bloco_notas.listaNotas
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import kotlinx.coroutines.async
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -28,7 +27,6 @@ import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -72,16 +70,8 @@ class ListaNotas : AppCompatActivity() {
         utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
+        sp.marcarFlag("internet", true)
 
-//        if (sp.buscarFlag("executar")) {
-//            if(UtilizadorManager.buscarEMAIL()!=null){
-//                api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
-//            }
-//
-//            sp.marcarFlag("executar", false)
-//        }
-
-//        sync.iniciarSincronizacao(this)
         // Configuração do layout e adapter para a RecyclerView
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         // Define o layout manager da RecyclerView
@@ -103,6 +93,7 @@ class ListaNotas : AppCompatActivity() {
         ListaDeNotas.adapter = adapter
 
         GlobalScope.launch(Dispatchers.Main) {
+
             if (!utilizadorEmail.isEmpty()) {
                 if (sp.buscarFlag("buscar")) {
                     val notas = api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
@@ -113,6 +104,7 @@ class ListaNotas : AppCompatActivity() {
                     delay(1000)
                 }
             }
+
 
             // Limpar a lista de Notas
             originalNotaLista.clear()
@@ -128,9 +120,6 @@ class ListaNotas : AppCompatActivity() {
 
             botaoAdicionarNota()
 
-            // Notifica as mudanças da lista para o RecyclerView
-            adapter.notifyDataSetChanged()
-
             barraPesquisa()
 
             eventoApagatuTudo()
@@ -138,6 +127,18 @@ class ListaNotas : AppCompatActivity() {
             setupDrawerLayout()
 
             checkInternet()
+
+            Toast.makeText(this@ListaNotas, "porque", Toast.LENGTH_SHORT).show()
+            if(sp.buscarFlag("logado")){
+                if(sync.sync(this@ListaNotas)){
+                    delay(5000)
+                    Toast.makeText(this@ListaNotas, "logado2", Toast.LENGTH_SHORT).show()
+                    val notas = api.buscarNotasAPI("${TokenManager.buscarToken()}", this@ListaNotas)
+                    sp.salvarNotasAPISP(notas)
+                    sp.marcarFlag("logado", false)
+                    sp.setTotal(notas.size)
+                }
+            }
 
         }
 
@@ -161,21 +162,46 @@ class ListaNotas : AppCompatActivity() {
     private fun checkInternet() {
         val builder = AlertDialog.Builder(this@ListaNotas)
         builder.setTitle("Sem Conexão á Internet!")
-        builder.setMessage("Por favor confirma a sua conexão e tente outra vez.")
-        builder.setPositiveButton("OK") { dialog, _ ->
+        builder.setMessage("Por favor conecte-se á Internet para poder usar a aplicação ou utilize o modo convidado")
+        builder.setPositiveButton("Convidado") { dialog, _ ->
             dialog.dismiss()
             isDialogShowing = false
+            UtilizadorManager.apagarUtilizador()
+            TokenManager.apagarToken()
+            sp.marcarFlag("buscar", true)
+            sp.marcarFlag("logado", false)
+            finish()
+            startActivity(Intent(this@ListaNotas, ListaNotas::class.java))
         }
+        builder.setNegativeButton("Sair") { dialog, _ ->
+            UtilizadorManager.apagarUtilizador()
+            TokenManager.apagarToken()
+            sp.marcarFlag("buscar", true)
+            sp.marcarFlag("logado", false)
+            finishAffinity();
+            System.exit(0);}
         val dialog = builder.create()
 
         handler.postDelayed(object : Runnable{
             override fun run() {
-                if(!api.internetConectada(this@ListaNotas) && !isDialogShowing) {
-                    dialog.show()
-                    isDialogShowing = true
-                } else if (api.internetConectada(this@ListaNotas) && isDialogShowing) {
-                    dialog.dismiss()
-                    isDialogShowing = false
+                if(utilizadorEmail.isNotEmpty()) {
+                    if (!api.internetConectada(this@ListaNotas) && !isDialogShowing) {
+                        if (sp.buscarFlag("internet")) {
+                            dialog.show()
+                            isDialogShowing = true
+                            sp.marcarFlag("internet", false)
+
+                        }
+                    } else if (api.internetConectada(this@ListaNotas) && isDialogShowing) {
+                        dialog.dismiss()
+                        isDialogShowing = false
+                        if (!sp.buscarFlag("internet")) {
+                            Toast.makeText(this@ListaNotas, "Tem internet", Toast.LENGTH_SHORT)
+                                .show()
+
+                        }
+                        sp.marcarFlag("internet", true)
+                    }
                 }
                 handler.postDelayed(this, delay)
             }
@@ -306,14 +332,13 @@ class ListaNotas : AppCompatActivity() {
             }
         }
         if(!utilizadorEmail.isEmpty()){
-
             nome.text= utilizadorEmail
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
             loginMenuItem.setOnMenuItemClickListener{
                 sync.sync(this)
-//                sync.pararSincronizacao()
                 sp.marcarFlag("buscar", true)
+                sp.marcarFlag("logado", false)
                 api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
                 startActivity(Intent(this, Login::class.java))
                 finish()
@@ -322,7 +347,6 @@ class ListaNotas : AppCompatActivity() {
             }
 
         }else{
-
             nome.text= "Convidado"
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.logout))
             loginMenuItem.setTitle("Entrar/Registar")
@@ -344,4 +368,6 @@ class ListaNotas : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+
 }
