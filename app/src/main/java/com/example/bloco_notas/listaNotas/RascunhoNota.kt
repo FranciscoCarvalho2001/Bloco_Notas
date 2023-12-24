@@ -3,18 +3,24 @@ package com.example.bloco_notas.listaNotas
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.SUCCESS
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
 import com.example.bloco_notas.storage.MinhaSharedPreferences
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 class RascunhoNota : AppCompatActivity() {
@@ -29,6 +35,29 @@ class RascunhoNota : AppCompatActivity() {
     private lateinit var api :API
     private lateinit var sp : MinhaSharedPreferences
     private lateinit var utilizadorEmail :String
+    // Speech to text
+    private lateinit var micro: FloatingActionButton
+    private lateinit var textToSpeech: TextToSpeech
+    private val speechRecognitionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data: Intent? = result.data
+            val results = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val textoReconhecido = results?.get(0) ?: ""
+
+            val texto = descricao.text.toString()
+            val textoAtualizado : String
+            if(texto.isEmpty()){
+                textoAtualizado = "$texto$textoReconhecido"
+            } else {
+                textoAtualizado = "$texto $textoReconhecido"
+            }
+            
+            // para Texto
+            descricao.setText(textoAtualizado)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,12 +71,12 @@ class RascunhoNota : AppCompatActivity() {
         guardarBtn = findViewById(R.id.guardarNota)
         titulo = findViewById(R.id.tituloCampo)
         descricao = findViewById(R.id.descricaoCampo)
+        micro = findViewById(R.id.floating_micro)
         sp=MinhaSharedPreferences()
         sp.init(this)
         listaNota.addAll(sp.getNotas())
         api=API()
         utilizadorEmail= UtilizadorManager.buscarEMAIL().toString()
-
 
         // Obtém o índice do extra "objeto" da Intent
         val index = intent.getSerializableExtra("objeto") as Int
@@ -111,6 +140,34 @@ class RascunhoNota : AppCompatActivity() {
             }
         }
 
+        // Speech to Text
+        textToSpeech = TextToSpeech(this, TextToSpeech.OnInitListener { status ->
+            if (status == SUCCESS) {
+                textToSpeech.language = Locale("pt", "PT")
+            }
+        })
+
+        micro.setOnClickListener{
+            reconhecimentoDeFala()
+        }
+
+    }
+
+    // TEXT TO SPEECH
+    private fun reconhecimentoDeFala() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "pt-PT")
+        speechRecognitionLauncher.launch(intent)
+    }
+    override fun onDestroy() {
+        textToSpeech.stop()
+        textToSpeech.shutdown()
+
+        super.onDestroy()
     }
 
 }
