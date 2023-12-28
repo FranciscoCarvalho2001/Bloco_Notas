@@ -33,7 +33,6 @@ class API {
 
     var sp: MinhaSharedPreferences = MinhaSharedPreferences()
     lateinit var alertDialog : AlertDialog
-    private val notaLista = ArrayList<Nota>()
 
     fun internetConectada(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -102,7 +101,9 @@ class API {
     }
 
     fun loginUtilizadorAPI(email: String, password: String, context: Context){
-        inflateLayout(context)
+        if (context != null) {
+            inflateLayout(context)
+        }
         val call = RetrofitInitializer()
             .loginLogoutService()
             .login("loginUser", "$email", "$password")
@@ -124,7 +125,9 @@ class API {
                 }
             }
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                alertDialog.cancel()
+                if (context != null) {
+                    alertDialog.cancel()
+                }
                 t.printStackTrace()
                 Toast.makeText(context, "ERRO AO ENTRAR!", Toast.LENGTH_SHORT).show()
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")

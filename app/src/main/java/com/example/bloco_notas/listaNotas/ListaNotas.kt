@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.bloco_notas.Acerca
+import com.example.bloco_notas.Definicoes
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.TokenManager
@@ -300,7 +301,7 @@ class ListaNotas : AppCompatActivity() {
 
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val headerView = navigationView.getHeaderView(0)
-        val nome: TextView = headerView.findViewById(R.id.nome)
+        val nome = headerView.findViewById<TextView>(R.id.nome)
         val loginMenuItem = navView.menu.findItem(R.id.nav_login)
 
         navView.setNavigationItemSelectedListener { menuItem ->
@@ -319,11 +320,13 @@ class ListaNotas : AppCompatActivity() {
                 }
 
                 R.id.nav_settings -> {
-                    // Lógica para o item 2
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val intent = Intent(this@ListaNotas, Definicoes::class.java)
+                        startActivity(intent)
+                    }
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
-                // Adicione mais casos conforme necessário
 
                 R.id.nav_about -> {
                     CoroutineScope(Dispatchers.Main).launch {

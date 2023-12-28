@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
 import com.example.bloco_notas.listaNotas.ListaNotas
 import com.example.bloco_notas.storage.API
@@ -67,9 +68,9 @@ class Login : AppCompatActivity() {
 //            startActivity(Intent(this@Login, ListaNotas::class.java))
 //        }
 //
-//        mudarParaRegistoButton.setOnClickListener {
-//            startActivity(Intent(this@Login, Registar::class.java))
-//
-//        }
+        mudarPagina.setOnClickListener  {
+            startActivity(Intent(this@Login, PaginaInicial::class.java))
+
+      }
     }
 }
