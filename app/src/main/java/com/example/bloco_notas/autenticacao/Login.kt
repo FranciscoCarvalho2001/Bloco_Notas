@@ -52,22 +52,7 @@ class Login : AppCompatActivity() {
             // on below line hiding our keyboard.
             inputMethodManager.hideSoftInputFromWindow(loginPassword.getWindowToken(), 0)
         }
-
-//        logoutButton.setOnClickListener {
-//            val token = TokenManager.buscarToken().toString()
-//            val email = UtilizadorManager.buscarEMAIL().toString()
-//            api.logoutUtilizadorAPI(token, email, this@Login)
-//        }
-//
-//        mostraUtilizadorEToken.setOnClickListener {
-//            val id = UtilizadorManager.buscarID()
-//            val email = UtilizadorManager.buscarEMAIL()
-//            val data = UtilizadorManager.buscarDATA()
-//            val token = TokenManager.buscarToken()
-//            Log.e("Utilizador", "ID: $id, EMAIL: $email, DATA: $data, TOKEN: $token")
-//            startActivity(Intent(this@Login, ListaNotas::class.java))
-//        }
-//
+        
         mudarPagina.setOnClickListener  {
             startActivity(Intent(this@Login, PaginaInicial::class.java))
 

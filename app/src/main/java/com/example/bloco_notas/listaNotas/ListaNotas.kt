@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.bloco_notas.Acerca
 import com.example.bloco_notas.Definicoes
+import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.TokenManager
@@ -49,6 +50,7 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var drawerLayout :DrawerLayout
     private lateinit var utilizadorEmail :String
     private lateinit var utilizadorToken :String
+    private lateinit var utilizadorNome :String
     private var sync : Sincronizar = Sincronizar()
 
     private val handler = android.os.Handler()
@@ -70,6 +72,7 @@ class ListaNotas : AppCompatActivity() {
         searchBar = findViewById(R.id.searchBar)
         apagaTudo=findViewById(R.id.apagarTudo)
         utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
+        utilizadorNome = UtilizadorManager.buscarUserName().toString()
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
         sp.marcarFlag("internet", true)
@@ -303,6 +306,7 @@ class ListaNotas : AppCompatActivity() {
         val headerView = navigationView.getHeaderView(0)
         val nome = headerView.findViewById<TextView>(R.id.nome)
         val loginMenuItem = navView.menu.findItem(R.id.nav_login)
+        nome.text= utilizadorNome
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -340,7 +344,7 @@ class ListaNotas : AppCompatActivity() {
             }
         }
         if(!utilizadorEmail.isEmpty()){
-            nome.text= utilizadorEmail
+
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
             loginMenuItem.setOnMenuItemClickListener{
@@ -348,18 +352,16 @@ class ListaNotas : AppCompatActivity() {
                 sp.marcarFlag("buscar", true)
                 sp.marcarFlag("logado", false)
                 api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
-                startActivity(Intent(this, Login::class.java))
-                finish()
+
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
             }
 
         }else{
-            nome.text= "Convidado"
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.logout))
             loginMenuItem.setTitle("Entrar/Registar")
             loginMenuItem.setOnMenuItemClickListener{
-                startActivity(Intent(this, Login::class.java))
+                startActivity(Intent(this, PaginaInicial::class.java))
                 finish()
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true

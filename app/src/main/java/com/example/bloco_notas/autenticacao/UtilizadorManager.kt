@@ -4,21 +4,21 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.example.bloco_notas.models.LoginResponse
-import com.example.bloco_notas.models.Utilizador
 import org.json.JSONException
-import org.json.JSONObject
 
 object UtilizadorManager {
     // Keys dos valores do utilizador presente no ficheiro
     private const val ID_KEY: String = "ID_KEY"
     private const val EMAIL_KEY: String = "EMAIL_KEY"
     private const val DATA_KEY: String = "DATA_KEY"
+    private const val NAME_KEY: String = "NOMES_KEY"
 
     private lateinit var sharedPreferences: SharedPreferences
 
     // inicar o sharedPreferences
     fun init(context: Context){
         sharedPreferences = context.getSharedPreferences("Utilizador", Context.MODE_PRIVATE)
+
     }
 
     // guarda o utilizador no ficheiro
@@ -28,6 +28,10 @@ object UtilizadorManager {
         editor.putString(EMAIL_KEY, email)
         editor.putString(DATA_KEY, data)
         editor.apply()
+        if (buscarUserName() == null) {
+            setUserName(email)
+        }
+
     }
 
     // buscar o valor do EMAIL do utilizador ao ficheiro
@@ -44,6 +48,47 @@ object UtilizadorManager {
     fun buscarDATA(): String? {
         return sharedPreferences.getString(DATA_KEY, "")
     }
+
+    // buscar lista de nomes ao ficheiro
+    fun buscarUserNameList(): String? {
+        return sharedPreferences.getString(NAME_KEY, "")
+    }
+
+    // buscar o valor da Nome do utilizador ao ficheiro
+    fun buscarUserName(): String? {
+        val email = buscarEMAIL().toString()
+        val currentUserName = buscarUserNameList()?.split(",")?.toMutableList()
+
+        if (currentUserName?.contains(email) == true) {
+            val index = currentUserName.indexOf(email)
+            return if (index != -1) currentUserName.getOrNull(index + 1) else null
+        }
+
+        return null
+    }
+
+    fun setUserName(name: String) {
+        val editor = sharedPreferences.edit()
+        val email = buscarEMAIL().toString()
+        val currentUserName = buscarUserNameList()?.split(",")?.toMutableList()
+
+        if (currentUserName != null) {
+            val index = currentUserName.indexOf(email)
+
+            if (index != -1) {
+                // Update the existing username
+                currentUserName[index + 1] = name
+            } else {
+                // Add a new username for the email
+                currentUserName.add(email)
+                currentUserName.add(name)
+            }
+
+            editor.putString(NAME_KEY, currentUserName.joinToString(",")).apply()
+        }
+    }
+
+
 
     // apaga o utilizador no ficheiro
     fun apagarUtilizador() {

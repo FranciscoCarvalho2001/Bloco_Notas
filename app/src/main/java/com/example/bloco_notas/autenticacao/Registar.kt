@@ -25,8 +25,8 @@ import java.util.Date
 class Registar : AppCompatActivity() {
 
     // Variáveis de layout
-    private lateinit var registoEmail: TextInputEditText
-    private lateinit var registoPassword: TextInputEditText
+    private lateinit var registoEmail: EditText
+    private lateinit var registoPassword: EditText
     private lateinit var registoButton: Button
     private lateinit var getButton: Button
     private lateinit var updateButton: Button

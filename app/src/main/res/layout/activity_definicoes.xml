@@ -69,7 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Mudar nome de utilizador"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="30dp"
         android:layout_marginLeft="15dp"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -96,7 +96,7 @@
             android:id="@+id/edNome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
+
             android:ems="10"
             android:minHeight="50dp"
             android:maxHeight="50dp"
@@ -114,8 +114,8 @@
         android:layout_weight="1"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="15dp"
-        android:backgroundTint="@color/accent"
-        app:srcCompat="@drawable/sinal_mais"
+        android:backgroundTint="@color/opaqueSecondary"
+        app:srcCompat="@drawable/icon_checar"
         app:layout_constraintStart_toEndOf="@id/edNomeLayout"
         app:layout_constraintTop_toBottomOf="@+id/chNome"/>
 
@@ -125,7 +125,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Mudar password"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="15dp"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -171,35 +171,54 @@
         android:layout_weight="1"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="15dp"
-        android:backgroundTint="@color/accent"
-        app:srcCompat="@drawable/sinal_mais"
+        android:backgroundTint="@color/opaqueSecondary"
+        app:srcCompat="@drawable/icon_checar"
         app:layout_constraintStart_toEndOf="@id/edPasswordLayout"
         app:layout_constraintTop_toBottomOf="@+id/chPassword"/>
+
+    <Button
+        android:id="@+id/apagaConta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Apagar conta"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="15dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/opaqueSecondary"
+        android:fontFamily="@font/poppins"
+        app:cornerRadius="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edPasswordLayout" />
+
 
     <ImageView
         android:id="@+id/imageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="20dp"
         android:background="@android:color/transparent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edPasswordLayout"
-        app:srcCompat="@drawable/pessoa" />
+        app:layout_constraintTop_toBottomOf="@+id/apagaConta"
+        app:srcCompat="@drawable/pessoa"
+        />
 
     <TextView
         android:id="@+id/defAcerca"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/poppins"
         android:text="Acerca"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/imageButton"
-        app:layout_constraintTop_toBottomOf="@+id/edPasswordLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/apagaConta" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
