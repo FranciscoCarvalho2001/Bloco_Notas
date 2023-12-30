@@ -284,11 +284,11 @@ class API {
     }
 
     // pede á API para atualizar um utilizador, fornecendo um ID
-    fun atualizarUtilizadorAPI(token: String, id: String, Email:String,password:String, context: Context){
+    fun atualizarUtilizadorAPI(token: String, id: String, email:String, password:String, context: Context){
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
-        var utilizador = Utilizador(  Email, password,data )
+        var utilizador = Utilizador(email, password, data)
         val utilizadorWrapper = UtilizadorWrapper(utilizador)
-        updateUtilizadorAPI(id, token, utilizadorWrapper, context)
+        updateUtilizadorAPI(token, id, utilizadorWrapper, context)
     }
     private fun updateUtilizadorAPI(token: String, id: String, utilizadorWrapper: UtilizadorWrapper, context: Context){
         val call = RetrofitInitializer()
