@@ -12,6 +12,7 @@ object UtilizadorManager {
     private const val EMAIL_KEY: String = "EMAIL_KEY"
     private const val DATA_KEY: String = "DATA_KEY"
     private const val NAME_KEY: String = "NOMES_KEY"
+    private const val IMAGEM_KEY: String = "IMAGEM_KEY"
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -112,6 +113,43 @@ object UtilizadorManager {
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
+        }
+    }
+    fun buscarImagemPerfilList(): String? {
+        return sharedPreferences.getString(IMAGEM_KEY, "")
+    }
+
+    // buscar o valor da Nome do utilizador ao ficheiro
+    fun buscarImagemPerfil(): String? {
+        val email = buscarEMAIL().toString()
+        val currentUserName = buscarImagemPerfilList()?.split(",")?.toMutableList()
+
+        if (currentUserName?.contains(email) == true) {
+            val index = currentUserName.indexOf(email)
+            return if (index != -1) currentUserName.getOrNull(index + 1) else null
+        }
+
+        return null
+    }
+
+    fun setImagemPerfil(imagem: String) {
+        val editor = sharedPreferences.edit()
+        val email = buscarEMAIL().toString()
+        val currentUserName = buscarImagemPerfilList()?.split(",")?.toMutableList()
+
+        if (currentUserName != null) {
+            val index = currentUserName.indexOf(email)
+
+            if (index != -1) {
+                // Update the existing username
+                currentUserName[index + 1] = imagem
+            } else {
+                // Add a new username for the email
+                currentUserName.add(email)
+                currentUserName.add(imagem)
+            }
+
+            editor.putString(IMAGEM_KEY, currentUserName.joinToString(",")).apply()
         }
     }
 

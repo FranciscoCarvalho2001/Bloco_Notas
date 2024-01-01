@@ -1,25 +1,14 @@
 package com.example.bloco_notas.autenticacao
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.R
-import com.example.bloco_notas.models.Utilizador
-import com.example.bloco_notas.models.UtilizadorWrapper
-import com.example.bloco_notas.retrofit.RetrofitInitializer
 import com.example.bloco_notas.storage.API
-import com.google.android.material.textfield.TextInputEditText
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.text.SimpleDateFormat
-import java.util.Date
 
 
 class Registar : AppCompatActivity() {
@@ -33,6 +22,7 @@ class Registar : AppCompatActivity() {
     private lateinit var deleteButton : Button
     private lateinit var mudarParaLoginButton: TextView
     private lateinit var api : API
+    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,13 +43,21 @@ class Registar : AppCompatActivity() {
             // obtem os valores do email e password
             val email = registoEmail.text.toString().trim()
             val password = registoPassword.text.toString().trim()
-            api.registarUtilizadorAPI(email, password, this@Registar)
+            if(!isValidEmail(email)){
+                Toast.makeText(this@Registar, "Email inválido", Toast.LENGTH_SHORT).show()
+            }else{
+                api.registarUtilizadorAPI(email, password, this@Registar)
+            }
+
         }
 
         mudarParaLoginButton.setOnClickListener {
             startActivity(Intent(this@Registar, Login::class.java))
         }
 
+    }
+    fun isValidEmail(email: String): Boolean {
+        return email.matches(emailRegex.toRegex())
     }
 
 }

@@ -36,8 +36,6 @@
             android:layout_marginLeft="50dp"
             android:layout_marginTop="100dp"
             android:hint="Email"
-            app:boxStrokeColor="@color/primary"
-            app:hintTextColor="@color/primary"
             style="@style/MyTextInputLayout"
             >
 
@@ -64,9 +62,6 @@
             android:layout_marginRight="50dp"
             android:layout_marginLeft="50dp"
             android:hint="Password"
-            app:boxStrokeColor="@color/primary"
-            app:hintTextColor="@color/primary"
-            app:boxStrokeErrorColor="@color/primary"
             style="@style/MyTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -76,7 +71,7 @@
                 android:ems="10"
                 android:minHeight="50dp"
                 android:maxHeight="50dp"
-                android:inputType="textEmailAddress"
+                android:inputType="textPassword"
                 android:hint="Password"
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/opaqueSecondary"

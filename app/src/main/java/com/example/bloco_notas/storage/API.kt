@@ -60,7 +60,7 @@ class API {
         addUtilizadorAPI(utilizador) {
             if (it){
                 Toast.makeText(context, "Registado!", Toast.LENGTH_SHORT).show()
-                context.startActivity(Intent(context, ListaNotas::class.java))
+                context.startActivity(Intent(context, Login::class.java))
                 (context as AppCompatActivity).finish()
                 Log.e("Resposta", "Response: $it")
             } else {

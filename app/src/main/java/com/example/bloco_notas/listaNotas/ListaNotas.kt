@@ -2,8 +2,10 @@ package com.example.bloco_notas.listaNotas
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -18,7 +20,6 @@ import com.example.bloco_notas.Acerca
 import com.example.bloco_notas.Definicoes
 import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
-import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.models.Nota
@@ -51,13 +52,12 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var utilizadorEmail :String
     private lateinit var utilizadorToken :String
     private lateinit var utilizadorNome :String
+    private lateinit var utilizadorImagemPerfil :String
     private var sync : Sincronizar = Sincronizar()
 
     private val handler = android.os.Handler()
     private val delay: Long = 3000 // 3 segundos
     private var isDialogShowing = false
-
-    private var funcaoExecutada = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +73,7 @@ class ListaNotas : AppCompatActivity() {
         apagaTudo=findViewById(R.id.apagarTudo)
         utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
         utilizadorNome = UtilizadorManager.buscarUserName().toString()
+        utilizadorImagemPerfil = UtilizadorManager.buscarImagemPerfil().toString()
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
         sp.marcarFlag("internet", true)
@@ -279,6 +280,8 @@ class ListaNotas : AppCompatActivity() {
             .show()
     }
 
+    // ----------------------------------------------------------------- Menu ---------------------------------------------------------------------------
+
     private fun setupDrawerLayout() {
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuBtn = findViewById<ImageButton>(R.id.btnMenu)
@@ -306,7 +309,10 @@ class ListaNotas : AppCompatActivity() {
         val headerView = navigationView.getHeaderView(0)
         val nome = headerView.findViewById<TextView>(R.id.nome)
         val loginMenuItem = navView.menu.findItem(R.id.nav_login)
-        nome.text= utilizadorNome
+        val ImagemPerfil = headerView.findViewById<ImageView>(R.id.fotoPerfil)
+        if(UtilizadorManager.buscarImagemPerfil() != null){
+            ImagemPerfil?.setImageURI(Uri.parse(UtilizadorManager.buscarImagemPerfil()))
+        }
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -344,7 +350,7 @@ class ListaNotas : AppCompatActivity() {
             }
         }
         if(!utilizadorEmail.isEmpty()){
-
+            nome.text= utilizadorNome
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
             loginMenuItem.setOnMenuItemClickListener{
@@ -358,6 +364,7 @@ class ListaNotas : AppCompatActivity() {
             }
 
         }else{
+            nome.text= "Convidado"
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.logout))
             loginMenuItem.setTitle("Entrar/Registar")
             loginMenuItem.setOnMenuItemClickListener{

@@ -26,9 +26,9 @@
             android:layout_centerHorizontal="true">
 
             <ImageView
+                android:id="@+id/fotoPerfil"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-
                 android:scaleType="centerCrop"
                 android:src="@drawable/png" />
         </androidx.cardview.widget.CardView>
