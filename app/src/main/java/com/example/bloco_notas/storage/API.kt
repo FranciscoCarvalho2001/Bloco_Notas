@@ -60,6 +60,7 @@ class API {
         addUtilizadorAPI(utilizador) {
             if (it){
                 Toast.makeText(context, "Registado!", Toast.LENGTH_SHORT).show()
+                alertDialog.dismiss()
                 context.startActivity(Intent(context, Login::class.java))
                 (context as AppCompatActivity).finish()
                 Log.e("Resposta", "Response: $it")
@@ -129,6 +130,7 @@ class API {
                     //Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
                     Log.e("RESPONSE", "Response : $responseBody")
                     //buscarNotasAPI(TokenManager.buscarToken().toString(),context)
+                    alertDialog.dismiss()
                     context.startActivity(Intent(context, ListaNotas::class.java))
                     (context as AppCompatActivity).finish()
                 }
@@ -162,6 +164,7 @@ class API {
                     UtilizadorManager.apagarUtilizador()
                     TokenManager.apagarToken()
                     Toast.makeText(context, "$responseBody", Toast.LENGTH_SHORT).show()
+                    alertDialog.dismiss()
                     context.startActivity(Intent(context, PaginaInicial::class.java))
                     (context as AppCompatActivity).finish()
                     // Log detalhes da resposta

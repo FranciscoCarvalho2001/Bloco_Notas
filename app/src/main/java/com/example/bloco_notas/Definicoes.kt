@@ -87,6 +87,8 @@ class Definicoes : AppCompatActivity() {
             btnPassword.visibility = View.GONE
             btnNome.visibility = View.GONE
             btnApagaConta.visibility = View.GONE
+            frame?.setImageResource(R.drawable.png)
+            frame?.isEnabled = false
         }
 
         btnNome.setOnClickListener {

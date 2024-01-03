@@ -1,7 +1,6 @@
 package com.example.bloco_notas.listaNotas
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
@@ -10,6 +9,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
@@ -135,7 +135,6 @@ class RascunhoNota : AppCompatActivity() {
             // Seo index é maior ou igual que 0 significa que é uma Nota existente portanto será apagada
             if (index >= 0) {
                 sp.apagarNota(index,listaNota)
-//                api.apagarNotaAPI("${TokenManager.buscarToken()}","${listaNota[index].id}")
             } else {
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
             }

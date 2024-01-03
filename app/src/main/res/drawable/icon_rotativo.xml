@@ -5,6 +5,7 @@
             android:drawable="@drawable/progresso"
             android:fillAfter="true"
             android:fromDegrees="0"
+            android:fillColor="#ffffff"
             android:pivotX="50%"
             android:pivotY="50%"
             android:toDegrees="360" />

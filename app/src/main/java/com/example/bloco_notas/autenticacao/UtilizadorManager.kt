@@ -50,6 +50,17 @@ object UtilizadorManager {
         return sharedPreferences.getString(DATA_KEY, "")
     }
 
+    // apaga o utilizador no ficheiro
+    fun apagarUtilizador() {
+        var editor = sharedPreferences.edit()
+        editor.remove(ID_KEY)
+        editor.remove(EMAIL_KEY)
+        editor.remove(DATA_KEY)
+        editor.apply()
+        apagarImagemPerfil()
+        apagarUserName()
+    }
+
     // buscar lista de nomes ao ficheiro
     fun buscarUserNameList(): String? {
         return sharedPreferences.getString(NAME_KEY, "")
@@ -89,15 +100,20 @@ object UtilizadorManager {
         }
     }
 
-
-
-    // apaga o utilizador no ficheiro
-    fun apagarUtilizador() {
+     fun apagarUserName() {
         var editor = sharedPreferences.edit()
-        editor.remove(ID_KEY)
-        editor.remove(EMAIL_KEY)
-        editor.remove(DATA_KEY)
-        editor.apply()
+        val email = buscarEMAIL().toString()
+        val lista = buscarUserNameList()?.split(",")?.toMutableList()
+        if (lista != null) {
+            val index = lista.indexOf(email)
+
+            if (index != -1) {
+                lista.removeAt(index)
+                lista.removeAt(index+1)
+            }
+
+            editor.putString(NAME_KEY, lista.joinToString(",")).apply()
+        }
     }
 
     // guarda o utilizador obtido da resposta
@@ -150,6 +166,22 @@ object UtilizadorManager {
             }
 
             editor.putString(IMAGEM_KEY, currentUserName.joinToString(",")).apply()
+        }
+    }
+
+    fun apagarImagemPerfil() {
+        var editor = sharedPreferences.edit()
+        val email = buscarEMAIL().toString()
+        val lista = buscarImagemPerfilList()?.split(",")?.toMutableList()
+        if (lista != null) {
+            val index = lista.indexOf(email)
+
+            if (index != -1) {
+                lista.removeAt(index)
+                lista.removeAt(index+1)
+            }
+
+            editor.putString(IMAGEM_KEY, lista.joinToString(",")).apply()
         }
     }
 
