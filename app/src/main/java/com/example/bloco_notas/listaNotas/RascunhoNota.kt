@@ -55,7 +55,11 @@ class RascunhoNota : AppCompatActivity() {
             }
             
             // para Texto
-            descricao.setText(textoAtualizado)
+            if(titulo.hasFocus()){
+                titulo.setText(textoAtualizado)
+            } else {
+                descricao.setText(textoAtualizado)
+            }
         }
     }
 
