@@ -4,11 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
 import com.example.bloco_notas.storage.API
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class Registar : AppCompatActivity() {
@@ -20,6 +25,7 @@ class Registar : AppCompatActivity() {
     private lateinit var getButton: Button
     private lateinit var updateButton: Button
     private lateinit var deleteButton : Button
+    private lateinit var voltarBtn: ImageButton
     private lateinit var mudarParaLoginButton: TextView
     private lateinit var api : API
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
@@ -34,10 +40,20 @@ class Registar : AppCompatActivity() {
         TokenManager.init(applicationContext)
 
         // ID's dos elementos
+        voltarBtn = findViewById(R.id.voltar)
         registoEmail = findViewById(R.id.registoEmail)
         registoPassword = findViewById(R.id.registoPassword)
         registoButton = findViewById(R.id.registoButton)
         mudarParaLoginButton = findViewById(R.id.mudarParaLoginButton)
+
+        voltarBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                val intent = Intent(this@Registar, PaginaInicial::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+        }
 
         registoButton.setOnClickListener{
             // obtem os valores do email e password
@@ -53,6 +69,7 @@ class Registar : AppCompatActivity() {
 
         mudarParaLoginButton.setOnClickListener {
             startActivity(Intent(this@Registar, Login::class.java))
+            finish()
         }
 
     }

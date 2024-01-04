@@ -57,8 +57,6 @@ object UtilizadorManager {
         editor.remove(EMAIL_KEY)
         editor.remove(DATA_KEY)
         editor.apply()
-        apagarImagemPerfil()
-        apagarUserName()
     }
 
     // buscar lista de nomes ao ficheiro
@@ -173,15 +171,17 @@ object UtilizadorManager {
         var editor = sharedPreferences.edit()
         val email = buscarEMAIL().toString()
         val lista = buscarImagemPerfilList()?.split(",")?.toMutableList()
-        if (lista != null) {
-            val index = lista.indexOf(email)
+        if(buscarImagemPerfil() != null){
+            if (lista != null) {
+                val index = lista.indexOf(email)
 
-            if (index != -1) {
-                lista.removeAt(index)
-                lista.removeAt(index+1)
+                if (index != -1) {
+                    lista.removeAt(index)
+                    lista.removeAt(index+1)
+                }
+
+                editor.putString(IMAGEM_KEY, lista.joinToString(",")).apply()
             }
-
-            editor.putString(IMAGEM_KEY, lista.joinToString(",")).apply()
         }
     }
 

@@ -7,17 +7,22 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
 import com.example.bloco_notas.listaNotas.ListaNotas
 import com.example.bloco_notas.storage.API
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class Login : AppCompatActivity() {
 
     // Variáveis de layout
+    private lateinit var voltarBtn: ImageButton
     private lateinit var loginEmail: EditText
     private lateinit var loginPassword: EditText
     private lateinit var loginButton: Button
@@ -35,11 +40,20 @@ class Login : AppCompatActivity() {
         TokenManager.init(applicationContext)
 
         // ID's dos elementos
+        voltarBtn = findViewById(R.id.voltar)
         loginEmail = findViewById(R.id.loginEmail)
         loginPassword = findViewById(R.id.loginPassword)
         loginButton = findViewById(R.id.loginButton)
         mudarPagina = findViewById(R.id.mudarPagina)
 
+        voltarBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                val intent = Intent(this@Login, PaginaInicial::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+        }
 
         loginButton.setOnClickListener {
             val email = loginEmail.text.toString().trim()
@@ -54,8 +68,8 @@ class Login : AppCompatActivity() {
         }
         
         mudarPagina.setOnClickListener  {
-            startActivity(Intent(this@Login, PaginaInicial::class.java))
-
-      }
+            startActivity(Intent(this@Login, Registar::class.java))
+            finish()
+        }
     }
 }

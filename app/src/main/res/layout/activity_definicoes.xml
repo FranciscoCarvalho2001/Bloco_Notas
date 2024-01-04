@@ -7,15 +7,28 @@
     android:background="@color/secondary"
     tools:context=".Definicoes">
 
+    <ImageButton
+        android:id="@+id/voltar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="8dp"
+        android:src="@drawable/seta_branca"
+        android:layout_marginEnd="200dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/DefTitulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Definições"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="25dp"
+        app:layout_constraintStart_toEndOf="@id/voltar"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="15dp"
         android:textAlignment="center"

@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
@@ -103,7 +104,10 @@ class RascunhoNota : AppCompatActivity() {
                 }
             }
             CoroutineScope(Dispatchers.Main).launch {
-                startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
+                val intent = Intent(this@RascunhoNota, ListaNotas::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
             }
 
         }
@@ -113,9 +117,9 @@ class RascunhoNota : AppCompatActivity() {
             // Se o index é menor significa que é uma nova Nota
             if (index < 0) {
                 var total =sp.getTotal()
-//                api.adicionarNotaAPI("${total}",utilizadorEmail,"${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}",this)
-                Toast.makeText(this, "$total", Toast.LENGTH_SHORT).show()
-                sp.guardarNota(listaNota,total.toString(),titulo.text.toString(),descricao.text.toString())
+//              api.adicionarNotaAPI("${total}",utilizadorEmail,"${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}",this)
+                Toast.makeText(this, "$total, ${listaNota.size}", Toast.LENGTH_SHORT).show()
+                sp.guardarNota(listaNota,listaNota.size.toString(),titulo.text.toString(),descricao.text.toString())
                 total++
                 sp.setTotal(total)
 

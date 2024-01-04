@@ -22,9 +22,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.listaNotas.ListaNotas
+import com.example.bloco_notas.models.Nota
 import com.example.bloco_notas.storage.API
 import com.example.bloco_notas.storage.MinhaSharedPreferences
+import com.example.bloco_notas.storage.Sincronizar
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.FileDescriptor
 import java.io.IOException
 
@@ -36,6 +41,7 @@ class Definicoes : AppCompatActivity() {
     private lateinit var nomeUtilizador: TextInputEditText
     private lateinit var passwordUtilizador: TextInputEditText
     private lateinit var mudarpass : TextView
+    private lateinit var voltarBtn: ImageButton
     private lateinit var btnNome : ImageButton
     private lateinit var btnPassword : ImageButton
     private lateinit var acerca : TextView
@@ -43,6 +49,8 @@ class Definicoes : AppCompatActivity() {
     private lateinit var btnApagaConta : Button
     private lateinit var utilizadorNome : String
     private lateinit var mudarNomeUtilizador : TextView
+    private var notas = ArrayList<Nota>()
+    private var sync : Sincronizar = Sincronizar()
     private var sp : MinhaSharedPreferences = MinhaSharedPreferences()
     private var frame: ImageView? = null
     private var imageUri: Uri? = null
@@ -54,6 +62,8 @@ class Definicoes : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_definicoes)
 
+        //inicialização das variaveis
+        voltarBtn = findViewById(R.id.voltar)
         nomePerfil = findViewById(R.id.nome)
         nomeUtilizador = findViewById(R.id.edNome)
         passwordUtilizador = findViewById(R.id.edPassword)
@@ -68,6 +78,7 @@ class Definicoes : AppCompatActivity() {
         frame= findViewById(R.id.fotoPerfil)
         api= API()
         sp.init(this)
+        sync.init(this)
 
         if(utilizadorEmail.isNotEmpty()){
             nomePerfil.text = utilizadorNome
@@ -86,6 +97,13 @@ class Definicoes : AppCompatActivity() {
             btnApagaConta.visibility = View.GONE
             frame?.setImageResource(R.drawable.png)
             frame?.isEnabled = false
+        }
+
+        voltarBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                startActivity(Intent(this@Definicoes, ListaNotas::class.java))
+                finish()
+            }
         }
 
         btnNome.setOnClickListener {
@@ -149,61 +167,99 @@ class Definicoes : AppCompatActivity() {
     }
 
     private fun mudarPassword(){
-        // Construção do AlertDialog usando padrão Builder - this referencia o contexto
-        AlertDialog.Builder(this)
-            // Título
-            .setTitle("Mudar password")
-            // Mensagem
-            .setMessage("Tem a certeza que quer mudar a password?")
-            // Cria e prepara o botão para responder ao click
-            .setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, id ->
-                api.atualizarUtilizadorAPI(
-                    TokenManager.buscarToken().toString(),
-                    UtilizadorManager.buscarID().toString(),
-                    utilizadorEmail,
-                    passwordUtilizador.text.toString(),
-                    this
-                )
-            })
-            // Cria e prepara o botão para responder ao click
-            .setNegativeButton("Não", DialogInterface.OnClickListener { dialog, id ->
-                dialog.cancel()})
-            // Faz a construção do AlertDialog com todas as configurações
-            .create()
-            // Exibe
-            .show()
+        if(api.internetConectada(this)) {
+            // Construção do AlertDialog usando padrão Builder - this referencia o contexto
+            AlertDialog.Builder(this)
+                // Título
+                .setTitle("Mudar password")
+                // Mensagem
+                .setMessage("Tem a certeza que quer mudar a password?")
+                // Cria e prepara o botão para responder ao click
+                .setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, id ->
+                    api.atualizarUtilizadorAPI(
+                        TokenManager.buscarToken().toString(),
+                        UtilizadorManager.buscarID().toString(),
+                        utilizadorEmail,
+                        passwordUtilizador.text.toString(),
+                        this
+                    )
+                })
+                // Cria e prepara o botão para responder ao click
+                .setNegativeButton("Não", DialogInterface.OnClickListener { dialog, id ->
+                    dialog.cancel()
+                })
+                // Faz a construção do AlertDialog com todas as configurações
+                .create()
+                // Exibe
+                .show()
+        } else {
+            AlertDialog.Builder(this)
+                // Título
+                .setTitle("Sem Conexão")
+                // Mensagem
+                .setMessage("Não tem conexão á internet, logo não pode mudar a password.")
+                // Cria e prepara o botão para responder ao click
+                .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, id ->
+                    dialog.cancel()
+                })
+                // Faz a construção do AlertDialog com todas as configurações
+                .create()
+                // Exibe
+                .show()
+        }
     }
 
 
     private fun apagarConta(){
-        // Construção do AlertDialog usando padrão Builder - this referencia o contexto
-        AlertDialog.Builder(this)
-            // Título
-            .setTitle("Apagar conta")
-            // Mensagem
-            .setMessage("Tem a certeza que quer apagar a sua conta?")
-            // Cria e prepara o botão para responder ao click
-            .setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, id ->
-                api.apagarUtilizadorAPI(
-                    TokenManager.buscarToken().toString(),
-                    UtilizadorManager.buscarID().toString(),
-                    this
-                )
-                UtilizadorManager.apagarUtilizador()
-                TokenManager.apagarToken()
-                sp.marcarFlag("buscar", true)
-                sp.marcarFlag("logado", false)
-                finish()
-                startActivity(Intent(this@Definicoes, ListaNotas::class.java))
-            })
-            // Cria e prepara o botão para responder ao click
-            .setNegativeButton("Cancelar", DialogInterface.OnClickListener { dialog, id -> dialog.cancel()})
-            // Faz a construção do AlertDialog com todas as configurações
-
-            .create()
-            // Exibe
-            .show()
-
+        if(api.internetConectada(this)) {
+            // Construção do AlertDialog usando padrão Builder - this referencia o contexto
+            AlertDialog.Builder(this)
+                // Título
+                .setTitle("Apagar conta")
+                // Mensagem
+                .setMessage("Tem a certeza que quer apagar a sua conta?")
+                // Cria e prepara o botão para responder ao click
+                .setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, id ->
+                    notas.addAll(sp.getNotas())
+                    sp.apagarTudo(notas)
+                    sync.sync(this)
+                    api.apagarUtilizadorAPI(
+                        TokenManager.buscarToken().toString(),
+                        UtilizadorManager.buscarID().toString(),
+                        this
+                    )
+                    UtilizadorManager.apagarUtilizador()
+                    UtilizadorManager.apagarUserName()
+                    UtilizadorManager.apagarImagemPerfil()
+                    TokenManager.apagarToken()
+                    sp.marcarFlag("buscar", true)
+                    sp.marcarFlag("logado", false)
+                    startActivity(Intent(this@Definicoes, PaginaInicial::class.java))
+                    finish()
+                })
+                // Cria e prepara o botão para responder ao click
+                .setNegativeButton(
+                    "Cancelar",
+                    DialogInterface.OnClickListener { dialog, id -> dialog.cancel() })
+                // Faz a construção do AlertDialog com todas as configurações
+                .create()
+                // Exibe
+                .show()
+        } else {
+            AlertDialog.Builder(this)
+                // Título
+                .setTitle("Sem Conexão")
+                // Mensagem
+                .setMessage("Não tem conexão á internet, logo não pode apagar a conta.")
+                // Cria e prepara o botão para responder ao click
+                .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, id ->
+                    dialog.cancel()
+                })
+                // Faz a construção do AlertDialog com todas as configurações
+                .create()
+                // Exibe
+                .show()
+        }
     }
     private fun openGallery() {
         val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -260,10 +316,6 @@ class Definicoes : AppCompatActivity() {
         }
         return result
     }
-
-
-
-
 
     private fun uriToBitmap(selectedFileUri: Uri): Bitmap? {
         try {

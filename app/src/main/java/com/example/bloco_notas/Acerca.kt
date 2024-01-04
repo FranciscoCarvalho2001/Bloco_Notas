@@ -6,20 +6,28 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.bloco_notas.listaNotas.ListaNotas
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 
 class Acerca : AppCompatActivity() {
 
     private lateinit var gitpagina : TextView
+    private lateinit var voltarBtn: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_acerca)
 
+        //inicialização das variaveis
+        voltarBtn = findViewById(R.id.voltar)
         gitpagina = findViewById(R.id.AcercaGit)
 
         gitpagina.setOnClickListener {
@@ -27,6 +35,13 @@ class Acerca : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(url)
             startActivity(intent)
+        }
+
+        voltarBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                startActivity(Intent(this@Acerca, ListaNotas::class.java))
+                finish()
+            }
         }
 
         createCopyright()
