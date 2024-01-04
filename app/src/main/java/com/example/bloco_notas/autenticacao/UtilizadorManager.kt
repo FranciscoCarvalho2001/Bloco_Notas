@@ -18,7 +18,7 @@ object UtilizadorManager {
 
     // inicar o sharedPreferences
     fun init(context: Context){
-        sharedPreferences = context.getSharedPreferences("Utilizador", Context.MODE_PRIVATE)
+        sharedPreferences = context.getSharedPreferences("Utilizador1", Context.MODE_PRIVATE)
 
     }
 

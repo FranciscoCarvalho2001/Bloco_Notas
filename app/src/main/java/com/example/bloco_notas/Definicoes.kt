@@ -12,14 +12,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.OpenableColumns
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.autenticacao.TokenManager
@@ -151,28 +148,15 @@ class Definicoes : AppCompatActivity() {
             .show()
     }
 
-    fun mudarPassword() {
-        // get alert_dialog.xml view
-        val li = LayoutInflater.from(applicationContext)
-        val promptsView: View = li.inflate(R.layout.alert_dialog_password, null)
-        val alertDialogBuilder = AlertDialog.Builder(this)
-
-
-        // set alert_dialog.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView)
-        val userInput = promptsView.findViewById<View>(R.id.etUserInput) as EditText
-
-        // set dialog message
-        alertDialogBuilder
-            .setCancelable(false)
-            .setPositiveButton("OK") { dialog, id -> // get user input and set it to result
-                // edit text
-                Toast.makeText(
-                    applicationContext,
-                    "Entered: " + userInput.text.toString(),
-                    Toast.LENGTH_LONG
-                ).show()
-
+    private fun mudarPassword(){
+        // Construção do AlertDialog usando padrão Builder - this referencia o contexto
+        AlertDialog.Builder(this)
+            // Título
+            .setTitle("Mudar password")
+            // Mensagem
+            .setMessage("Tem a certeza que quer mudar a password?")
+            // Cria e prepara o botão para responder ao click
+            .setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, id ->
                 api.atualizarUtilizadorAPI(
                     TokenManager.buscarToken().toString(),
                     UtilizadorManager.buscarID().toString(),
@@ -180,18 +164,16 @@ class Definicoes : AppCompatActivity() {
                     passwordUtilizador.text.toString(),
                     this
                 )
-
-            }
-            .setNegativeButton(
-                "Cancelar"
-            ) { dialog, id -> dialog.cancel() }
-
-        // create alert dialog
-        val alertDialog = alertDialogBuilder.create()
-
-        // show it
-        alertDialog.show()
+            })
+            // Cria e prepara o botão para responder ao click
+            .setNegativeButton("Não", DialogInterface.OnClickListener { dialog, id ->
+                dialog.cancel()})
+            // Faz a construção do AlertDialog com todas as configurações
+            .create()
+            // Exibe
+            .show()
     }
+
 
     private fun apagarConta(){
         // Construção do AlertDialog usando padrão Builder - this referencia o contexto

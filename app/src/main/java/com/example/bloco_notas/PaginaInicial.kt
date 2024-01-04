@@ -1,10 +1,10 @@
 package com.example.bloco_notas
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.Registar
 import com.example.bloco_notas.listaNotas.ListaNotas

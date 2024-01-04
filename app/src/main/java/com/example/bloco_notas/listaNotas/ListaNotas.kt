@@ -2,6 +2,7 @@ package com.example.bloco_notas.listaNotas
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageButton
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.bloco_notas.Acerca
@@ -30,7 +32,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -63,8 +64,19 @@ class ListaNotas : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_notas)
 
-        //inicialização das variaveis
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED ||
+            checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED ||
+            checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_DENIED
+        ) {
+            val permission = arrayOf(
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.READ_MEDIA_IMAGES
+            )
+            requestPermissions(permission, 112)
+        }
 
+        //inicialização das variaveis
         sp.init(this)
         sync.init(this)
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
@@ -73,7 +85,6 @@ class ListaNotas : AppCompatActivity() {
         apagaTudo=findViewById(R.id.apagarTudo)
         utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
         utilizadorNome = UtilizadorManager.buscarUserName().toString()
-        utilizadorImagemPerfil = UtilizadorManager.buscarImagemPerfil().toString()
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
         sp.marcarFlag("internet", true)
@@ -98,7 +109,9 @@ class ListaNotas : AppCompatActivity() {
         // Define o adapter na RecyclerView
         ListaDeNotas.adapter = adapter
 
-        GlobalScope.launch(Dispatchers.Main) {
+        setupDrawerLayout()
+
+        lifecycleScope.launch(Dispatchers.Main) {
 
             if (!utilizadorEmail.isEmpty()) {
                 if (sp.buscarFlag("buscar")) {
@@ -130,7 +143,6 @@ class ListaNotas : AppCompatActivity() {
 
             eventoApagatuTudo()
 
-            setupDrawerLayout()
 
             Toast.makeText(this@ListaNotas, "porque", Toast.LENGTH_SHORT).show()
             if(sp.buscarFlag("logado")){
@@ -184,8 +196,7 @@ class ListaNotas : AppCompatActivity() {
             TokenManager.apagarToken()
             sp.marcarFlag("buscar", true)
             sp.marcarFlag("logado", false)
-            finishAffinity();
-            System.exit(0);}
+            finishAffinity()}
         val dialog = builder.create()
 
         handler.postDelayed(object : Runnable{
@@ -193,10 +204,11 @@ class ListaNotas : AppCompatActivity() {
                 if(utilizadorEmail.isNotEmpty()) {
                     if (!api.internetConectada(this@ListaNotas) && !isDialogShowing) {
                         if (sp.buscarFlag("internet")) {
-                            dialog.show()
-                            isDialogShowing = true
-                            sp.marcarFlag("internet", false)
-
+                            if (!dialog.isShowing) {
+                                dialog.show()
+                                isDialogShowing = true
+                                sp.marcarFlag("internet", false)
+                            }
                         }
                     } else if (api.internetConectada(this@ListaNotas) && isDialogShowing) {
                         dialog.dismiss()
@@ -310,9 +322,6 @@ class ListaNotas : AppCompatActivity() {
         val nome = headerView.findViewById<TextView>(R.id.nome)
         val loginMenuItem = navView.menu.findItem(R.id.nav_login)
         val ImagemPerfil = headerView.findViewById<ImageView>(R.id.fotoPerfil)
-        if(UtilizadorManager.buscarImagemPerfil() != null){
-            ImagemPerfil?.setImageURI(Uri.parse(UtilizadorManager.buscarImagemPerfil()))
-        }
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -350,9 +359,12 @@ class ListaNotas : AppCompatActivity() {
             }
         }
         if(!utilizadorEmail.isEmpty()){
-            nome.text= utilizadorNome
+            nome.text= UtilizadorManager.buscarUserName().toString()
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
+            if(UtilizadorManager.buscarImagemPerfil() != null){
+                ImagemPerfil?.setImageURI(Uri.parse(UtilizadorManager.buscarImagemPerfil()))
+            }
             loginMenuItem.setOnMenuItemClickListener{
                 sync.sync(this)
                 sp.marcarFlag("buscar", true)
@@ -378,6 +390,7 @@ class ListaNotas : AppCompatActivity() {
 
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -385,6 +398,9 @@ class ListaNotas : AppCompatActivity() {
             super.onBackPressed()
         }
     }
-
+    override fun onResume() {
+        super.onResume()
+        setupDrawerLayout()
+    }
 
 }
