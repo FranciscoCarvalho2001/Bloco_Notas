@@ -10,7 +10,6 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
@@ -98,7 +97,7 @@ class RascunhoNota : AppCompatActivity() {
             if(!titulo.text.isEmpty() && !descricao.text.isEmpty()){
                 when {
                     // Se o index é menor significa que é uma nova Nota
-                    index < 0 ->sp.guardarNota(listaNota,sp.getTotal().toString(),titulo.text.toString(),descricao.text.toString())
+                    index < 0 ->sp.guardarNota(listaNota,listaNota.size.toString(),titulo.text.toString(),descricao.text.toString())
                     // Se não é uma Nota existente portanto será atualizada
                     else -> sp.atualizarNota(index,listaNota,titulo.text.toString(),descricao.text.toString())
                 }
@@ -116,18 +115,13 @@ class RascunhoNota : AppCompatActivity() {
         guardarBtn.setOnClickListener{
             // Se o index é menor significa que é uma nova Nota
             if (index < 0) {
-                var total =sp.getTotal()
-//              api.adicionarNotaAPI("${total}",utilizadorEmail,"${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}",this)
-                Toast.makeText(this, "$total, ${listaNota.size}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "${listaNota.size}", Toast.LENGTH_SHORT).show()
                 sp.guardarNota(listaNota,listaNota.size.toString(),titulo.text.toString(),descricao.text.toString())
-                total++
-                sp.setTotal(total)
+                sp.setTotal(listaNota.size)
 
             } // Se não é uma Nota existente portanto será atualizada
             else {
-//                api.atualizarNotaAPI("${listaNota[index].id}",listaNota[index].emailUtilizador,"$index","${titulo.text}","${descricao.text}","${TokenManager.buscarToken()}")
                 sp.atualizarNota(index,listaNota,titulo.text.toString(),descricao.text.toString())
-
             }
             CoroutineScope(Dispatchers.Main).launch {
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
