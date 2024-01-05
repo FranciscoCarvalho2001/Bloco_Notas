@@ -12,12 +12,18 @@ import java.util.Date
 
 class MinhaSharedPreferences {
 
+    // Criação das variaveis
     private lateinit var ficheiro : String
     private lateinit var email : String
     private lateinit var sh : SharedPreferences
+
+    // Inicializa a SharedPreferences
     fun init(context: Context) {
+        // Inicializa o UtilizadorManager
         UtilizadorManager.init(context)
+        // Inicializa as variaveis
         email = UtilizadorManager.buscarEMAIL().toString()
+        // Verifica se exite utilizador
         if(email.isEmpty()){
             ficheiro = "ficheiroSPA"
         }else{
@@ -26,6 +32,7 @@ class MinhaSharedPreferences {
         sh = context.getSharedPreferences(ficheiro, AppCompatActivity.MODE_PRIVATE)
     }
 
+    // Função para guardar a nota
     fun guardarNota( listaNota:ArrayList<Nota>,id:String, titulo: String, descricao: String) {
         val titulo1 = titulo
         val descricao1 = descricao
@@ -35,6 +42,7 @@ class MinhaSharedPreferences {
         salvarNotas(listaNota)
     }
 
+    // Função para atualizar a nota
    fun atualizarNota( index: Int, listaNota:ArrayList<Nota>, titulo: String, descricao: String) {
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
         val newNote = Nota(email,listaNota[index].idNota, titulo, descricao,"$data", null)
@@ -42,16 +50,20 @@ class MinhaSharedPreferences {
         salvarNotas(listaNota)
     }
 
+    // Função para apagar a nota
    fun apagarNota( index: Int,  listaNota:ArrayList<Nota>) {
         listaNota.remove(listaNota[index])
         salvarNotas(listaNota)
     }
 
+    // Função para guardar a nota na SharedPreferences
    fun salvarNotas( notas: List<Nota>) {
         val gson = Gson()
         val json = gson.toJson(notas)
         sh.edit().putString("notas", json).apply()
     }
+
+    // Função para obter as notas da SharedPreferences
    fun getNotas(): List<Nota> {
         val gson = Gson()
         val json = sh.getString("notas", "")
@@ -63,45 +75,31 @@ class MinhaSharedPreferences {
         }
    }
 
+    // Função para apagar todas as notas
     fun apagarTudo( listaNota:ArrayList<Nota>){
         sh.edit().putInt("totalNotes",0).apply()
         listaNota.clear()
         salvarNotas(listaNota)
     }
 
-    fun buscarNotasUtilizador(): List<Nota>{
-        var listaNotas = getNotas()
-        var listaNotasUtilizador= ArrayList<Nota>()
-        for( nota in listaNotas){
-            if(nota.emailUtilizador==email){
-                listaNotasUtilizador.add(nota)
-            }
-        }
-        return if (listaNotasUtilizador.isEmpty()){
-            emptyList()
-        }else{
-            listaNotasUtilizador
-        }
-    }
-
+    // Função para obter o total de notas
     fun getTotal():Int{
         return sh.getInt("totalNotes",0)
     }
 
+    // Função para definir o total de notas
     fun setTotal(t:Int){
         sh.edit().putInt("totalNotes",t).apply()
     }
 
-    fun daNome():String{
-        return ficheiro
-    }
-
+    // Função para guardar as notas da API na SharedPreferences
     fun salvarNotasAPISP(notas: List<Nota>) {
         val gson = Gson()
         val json = gson.toJson(notas)
         sh.edit().putString("notasAPI", json).apply()
     }
 
+    // Função para obter as notas da API da SharedPreferences
     fun getNotasAPISP(): List<Nota> {
         val gson = Gson()
         val json = sh.getString("notasAPI", "")
@@ -113,11 +111,13 @@ class MinhaSharedPreferences {
         }
     }
 
+    // Função para guardar uma flag na SharedPreferences
     fun buscarFlag(key : String): Boolean {
         // Retorna true se a função já foi executada, caso contrário, retorna false
         return sh.getBoolean(key, true)
     }
 
+    // Função para alterar o valor de uma flag na SharedPreferences
    fun marcarFlag(key : String, flag: Boolean) {
         // Marca a função como executada no SharedPreferences
         sh.edit().putBoolean(key, flag).apply()

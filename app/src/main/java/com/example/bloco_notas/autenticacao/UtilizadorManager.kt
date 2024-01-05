@@ -67,29 +67,34 @@ object UtilizadorManager {
     // buscar o valor da Nome do utilizador ao ficheiro
     fun buscarUserName(): String? {
         val email = buscarEMAIL().toString()
+        // buscar lista de nomes ao ficheiro
         val currentUserName = buscarUserNameList()?.split(",")?.toMutableList()
 
+        // Se o utilizador tiver um nome associado
         if (currentUserName?.contains(email) == true) {
             val index = currentUserName.indexOf(email)
+            // retorna o nome do utilizador caso exista
             return if (index != -1) currentUserName.getOrNull(index + 1) else null
         }
 
         return null
     }
 
+    // guardar o valor do Nome do utilizador no ficheiro
     fun setUserName(name: String) {
         val editor = sharedPreferences.edit()
         val email = buscarEMAIL().toString()
+        // buscar lista de nomes ao ficheiro
         val currentUserName = buscarUserNameList()?.split(",")?.toMutableList()
-
+        // Se o utilizador tiver um nome associado
         if (currentUserName != null) {
             val index = currentUserName.indexOf(email)
-
+            // Se o index for diferente de -1 significa que o email existe na lista
             if (index != -1) {
-                // Update the existing username
+                // Atualizar o nome existente
                 currentUserName[index + 1] = name
             } else {
-                // Add a new username for the email
+                // Adicionar um novo nome e o email do utilizador
                 currentUserName.add(email)
                 currentUserName.add(name)
             }
@@ -98,6 +103,7 @@ object UtilizadorManager {
         }
     }
 
+    // apagar o valor do Nome do utilizador no ficheiro
      fun apagarUserName() {
         var editor = sharedPreferences.edit()
         val email = buscarEMAIL().toString()
@@ -129,36 +135,42 @@ object UtilizadorManager {
             }
         }
     }
+
+    // buscar lista de imagens ao ficheiro
     fun buscarImagemPerfilList(): String? {
         return sharedPreferences.getString(IMAGEM_KEY, "")
     }
 
-    // buscar o valor da Nome do utilizador ao ficheiro
+    // buscar o valor da imagem do utilizador ao ficheiro
     fun buscarImagemPerfil(): String? {
         val email = buscarEMAIL().toString()
         val currentUserName = buscarImagemPerfilList()?.split(",")?.toMutableList()
-
+        // Se o utilizador tiver uma imagem associada
         if (currentUserName?.contains(email) == true) {
             val index = currentUserName.indexOf(email)
+            // retorna a imagem do utilizador caso exista
             return if (index != -1) currentUserName.getOrNull(index + 1) else null
         }
 
         return null
     }
 
+    // guardar o valor da imagem do utilizador no ficheiro
     fun setImagemPerfil(imagem: String) {
         val editor = sharedPreferences.edit()
         val email = buscarEMAIL().toString()
+        // buscar lista de imagens ao ficheiro
         val currentUserName = buscarImagemPerfilList()?.split(",")?.toMutableList()
 
+        // Se o utilizador tiver uma imagem
         if (currentUserName != null) {
             val index = currentUserName.indexOf(email)
 
             if (index != -1) {
-                // Update the existing username
+                // Atualizar a imagem existente
                 currentUserName[index + 1] = imagem
             } else {
-                // Add a new username for the email
+                // Adicionar uma nova imagem para o email do utilizador
                 currentUserName.add(email)
                 currentUserName.add(imagem)
             }
@@ -167,19 +179,25 @@ object UtilizadorManager {
         }
     }
 
+    // apagar o valor da imagem do utilizador no ficheiro
     fun apagarImagemPerfil() {
         var editor = sharedPreferences.edit()
         val email = buscarEMAIL().toString()
+        // buscar lista de imagens ao ficheiro
         val lista = buscarImagemPerfilList()?.split(",")?.toMutableList()
+        // Se o utilizador tiver uma imagem
         if(buscarImagemPerfil() != null){
+            // se a lista não for nula
             if (lista != null) {
+                // buscar o index do email do utilizador
                 val index = lista.indexOf(email)
 
+                // se o index for diferente de -1 significa que o email existe na lista
                 if (index != -1) {
+                    // remover o email e a imagem
                     lista.removeAt(index)
                     lista.removeAt(index+1)
                 }
-
                 editor.putString(IMAGEM_KEY, lista.joinToString(",")).apply()
             }
         }
