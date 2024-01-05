@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.bloco_notas"
+    namespace = "com.dam.bloco_notas"
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.example.bloco_notas"
+        applicationId = "com.dam.bloco_notas"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
