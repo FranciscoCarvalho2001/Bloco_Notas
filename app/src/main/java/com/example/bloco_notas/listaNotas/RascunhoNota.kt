@@ -7,7 +7,6 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.SUCCESS
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bloco_notas.R
@@ -67,9 +66,8 @@ class RascunhoNota : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rascunho_nota)
 
-        TokenManager.init(applicationContext)
-
         //inicialização das variaveis
+        TokenManager.init(applicationContext)
         voltarBtn = findViewById(R.id.voltar)
         apagarBtn = findViewById(R.id.apagarNota)
         guardarBtn = findViewById(R.id.guardarNota)
@@ -115,8 +113,9 @@ class RascunhoNota : AppCompatActivity() {
         guardarBtn.setOnClickListener{
             // Se o index é menor significa que é uma nova Nota
             if (index < 0) {
-                Toast.makeText(this, "${listaNota.size}", Toast.LENGTH_SHORT).show()
+                // Guardar Nota
                 sp.guardarNota(listaNota,listaNota.size.toString(),titulo.text.toString(),descricao.text.toString())
+                // Guardar o total de Notas
                 sp.setTotal(listaNota.size)
 
             } // Se não é uma Nota existente portanto será atualizada
@@ -125,6 +124,7 @@ class RascunhoNota : AppCompatActivity() {
             }
             CoroutineScope(Dispatchers.Main).launch {
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
+                finish()
             }
         }
 
@@ -134,10 +134,14 @@ class RascunhoNota : AppCompatActivity() {
             if (index >= 0) {
                 sp.apagarNota(index,listaNota)
             } else {
+                // Mudar atividade para a ListaNotas
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
+                finish()
             }
             CoroutineScope(Dispatchers.Main).launch {
+                // Mudar atividade para a ListaNotas
                 startActivity(Intent(this@RascunhoNota, ListaNotas::class.java))
+                finish()
             }
         }
 
@@ -148,6 +152,7 @@ class RascunhoNota : AppCompatActivity() {
             }
         })
 
+        // Evento ao carregar no botão micro para ativar o reconhecimento de fala
         micro.setOnClickListener{
             reconhecimentoDeFala()
         }
@@ -156,14 +161,18 @@ class RascunhoNota : AppCompatActivity() {
 
     // TEXT TO SPEECH
     private fun reconhecimentoDeFala() {
+        // Criação do Intent para o reconhecimento de fala
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         intent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         )
+        // Defição da lingua para português
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "pt-PT")
         speechRecognitionLauncher.launch(intent)
     }
+
+    // Metodo onDestroy para parar o TextToSpeech
     override fun onDestroy() {
         textToSpeech.stop()
         textToSpeech.shutdown()

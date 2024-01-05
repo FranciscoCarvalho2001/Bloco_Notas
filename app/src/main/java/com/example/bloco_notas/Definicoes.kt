@@ -80,13 +80,16 @@ class Definicoes : AppCompatActivity() {
         sp.init(this)
         sync.init(this)
 
+        // Verifica se o utilizador está logado
         if(utilizadorEmail.isNotEmpty()){
+            // Cofiguração das opções exclusivas para o utilizador logado
             nomePerfil.text = utilizadorNome
             nomeUtilizador.setText(utilizadorNome)
             if(UtilizadorManager.buscarImagemPerfil() != null){
                 frame?.setImageURI(Uri.parse(UtilizadorManager.buscarImagemPerfil()))
             }
         }else{
+            // Cofiguração das opções exclusivas para o utilizador offline
             nomePerfil.text = "Convidado"
             nomeUtilizador.visibility = View.GONE
             mudarNomeUtilizador.visibility = View.GONE
@@ -99,6 +102,7 @@ class Definicoes : AppCompatActivity() {
             frame?.isEnabled = false
         }
 
+        // Evento ao carregar no botão para voltar para a lista de notas
         voltarBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
                 startActivity(Intent(this@Definicoes, ListaNotas::class.java))
@@ -106,23 +110,28 @@ class Definicoes : AppCompatActivity() {
             }
         }
 
+        // Evento ao carregar no botão para mudar o nome de utilizador
         btnNome.setOnClickListener {
             mudarNome()
         }
 
+        // Evento ao carregar no botão para mudar a password
         btnPassword.setOnClickListener {
            mudarPassword()
         }
 
+        // Evento ao carregar no botão para ir para a pagina acerca
         acerca.setOnClickListener {
             startActivity(Intent(this, Acerca::class.java))
             finish()
         }
 
+        // Evento ao carregar no botão para apagar a conta
         btnApagaConta.setOnClickListener {
             apagarConta()
         }
 
+        // Verifica se a permissão para usar a camera foi concedida
         if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED ||
             checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED ||
             checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_DENIED
@@ -135,16 +144,20 @@ class Definicoes : AppCompatActivity() {
             requestPermissions(permission, 112)
         }
 
+        // Evento ao carregar na imagem para mudar a foto de perfil e abrir a camera
         frame?.setOnLongClickListener {
             openCamera()
             true
         }
+
+        // Evento ao carregar na imagem para mudar a foto de perfil e abrir a galeria
         frame?.setOnClickListener {
             openGallery()
         }
 
     }
 
+    // Função para mudar o nome de utilizador
     private fun mudarNome(){
         // Construção do AlertDialog usando padrão Builder - this referencia o contexto
         AlertDialog.Builder(this)
@@ -166,6 +179,7 @@ class Definicoes : AppCompatActivity() {
             .show()
     }
 
+    // Função para mudar a password
     private fun mudarPassword(){
         if(api.internetConectada(this)) {
             // Construção do AlertDialog usando padrão Builder - this referencia o contexto
@@ -209,7 +223,7 @@ class Definicoes : AppCompatActivity() {
         }
     }
 
-
+    // Função para apagar a conta
     private fun apagarConta(){
         if(api.internetConectada(this)) {
             // Construção do AlertDialog usando padrão Builder - this referencia o contexto
