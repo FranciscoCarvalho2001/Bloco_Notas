@@ -32,10 +32,11 @@ import java.util.Date
 
 class API {
 
-
-    var sp: MinhaSharedPreferences = MinhaSharedPreferences()
+    // inicia as variaveis
     lateinit var alertDialog : AlertDialog
+    var sp: MinhaSharedPreferences = MinhaSharedPreferences()
 
+    // confirma se há internet
     fun internetConectada(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (connectivityManager != null) {
@@ -54,20 +55,25 @@ class API {
         if (context != null) {
             inflateLayout(context)
         }
+        // obtem a data
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
+        // obtem o utilizador
         var utilizador = Utilizador("$email", "$password", "$data")
-
+        // adiciona o utilizador á API
         addUtilizadorAPI(utilizador) {
-            if (it){
+            if (it){ // se foi registo com sucesso...
+                // mostra uma mensagem de registo
                 Toast.makeText(context, "Registado!", Toast.LENGTH_SHORT).show()
                 alertDialog.dismiss()
+
                 context.startActivity(Intent(context, Login::class.java))
                 (context as AppCompatActivity).finish()
                 Log.e("Resposta", "Response: $it")
-            } else {
+            } else { // se não foi registado...
                 if (context != null) {
                     alertDialog.cancel()
                 }
+                // mostra uma mensagem de não registo
                 Toast.makeText(context, "Não Registado!", Toast.LENGTH_SHORT).show()
                 Log.e("Resposta", "Response: $it")
             }
@@ -75,45 +81,51 @@ class API {
     }
     // adiciona um utilizador na base de dados
     private fun addUtilizadorAPI(utilizador: Utilizador, onResult: (Boolean) -> Unit) {
-        // obtem os valores do utilizador
+        // obtem o email do utilizador
         val email = utilizador.email
+        // obtem a password do utilizador
         val password = utilizador.password
+        // obtem a data de registo do utilizador
         val data = utilizador.data
 
+        // faz a call para a API
         val call = RetrofitInitializer()
             .loginLogoutService()
             .registarUtilizador("addUser", "$email", "$password", "$data")
-        Log.e("SEND TO API", "$utilizador")
 
         call.enqueue(object : Callback<String> {
             override fun onResponse(
                 call: Call<String>,
                 response: Response<String>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful) { // se a reposta teve sucesso...
                     val responseBody = response.body()
+                    // devolve true
                     onResult(true)
-
                     // Log detalhes da resposta
                     Log.d("API_CALL_SUCCESS", "Response: $responseBody")
                 } else {
+                    // devolve falso
+                    onResult(false)
                     // Log detalhes do erro
                     Log.e("API_CALL_ERROR", "Error: ${response.code()} - ${response.errorBody()}")
-                    onResult(false)
                 }
             }
-            override fun onFailure(call: Call<String>, t: Throwable) {
+            override fun onFailure(call: Call<String>, t: Throwable) { // se não houver resposta...
                 t.printStackTrace()
+                // devolve falso
                 onResult(false)
+                // Log detalhes do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
     }
-
+    // faz login do utilizador na app
     fun loginUtilizadorAPI(email: String, password: String, context: Context){
         if (context != null) {
             inflateLayout(context)
         }
+        // faz a call para a API
         val call = RetrofitInitializer()
             .loginLogoutService()
             .login("loginUser", "$email", "$password")
@@ -123,33 +135,38 @@ class API {
                 call: Call<LoginResponse>,
                 response: Response<LoginResponse>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful) { // se a reposta teve sucesso...
                     val responseBody = response.body()
+                    // guarda o utilizador na sharedPreferences
                     UtilizadorManager.getUserFromResponse(responseBody)
+                    // guarda o token na sharedPreferences
                     TokenManager.getTokenFromResponse(responseBody)
                     //Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
-                    Log.e("RESPONSE", "Response : $responseBody")
-                    //buscarNotasAPI(TokenManager.buscarToken().toString(),context)
                     alertDialog.dismiss()
                     context.startActivity(Intent(context, ListaNotas::class.java))
                     (context as AppCompatActivity).finish()
+                    // Log detalhes da resposta
+                    Log.e("RESPONSE", "Response : $responseBody")
                 }
             }
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) { // se não houver resposta...
                 if (context != null) {
                     alertDialog.cancel()
                 }
                 t.printStackTrace()
+                // mensagem de erro ao entrar
                 Toast.makeText(context, "ERRO AO ENTRAR!", Toast.LENGTH_SHORT).show()
+                // Log detalhes do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
     }
-
+    // faz logout na app
     fun logoutUtilizadorAPI(token: String, email: String, context: Context){
         if (context != null) {
             inflateLayout(context)
         }
+        // faz a call para a API
         val call = RetrofitInitializer()
             .loginLogoutService()
             .logout("logoutUser", "$email", "$token")
@@ -159,11 +176,13 @@ class API {
                 call: Call<String>,
                 response: Response<String>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful) { // se a reposta teve sucesso...
                     val responseBody = response.body()
+                    // apaga o utilizador na sharedPreferences
                     UtilizadorManager.apagarUtilizador()
+                    // apaga o token na sharedPreferences
                     TokenManager.apagarToken()
-                    Toast.makeText(context, "$responseBody", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "$responseBody", Toast.LENGTH_SHORT).show()
                     alertDialog.dismiss()
                     context.startActivity(Intent(context, PaginaInicial::class.java))
                     (context as AppCompatActivity).finish()
@@ -174,13 +193,14 @@ class API {
                     Log.e("API_CALL_ERROR", "Error: ${response.code()} - ${response.errorBody()}")
                 }
             }
-
-            override fun onFailure(call: Call<String>, t: Throwable) {
+            override fun onFailure(call: Call<String>, t: Throwable) { // se não houver resposta...
                 if (context != null) {
                     alertDialog.cancel()
                 }
                 t.printStackTrace()
+                // mensagem de erro ao sair
                 Toast.makeText(context, "ERRO AO SAIR!", Toast.LENGTH_SHORT).show()
+                // Log detalhes do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
@@ -204,7 +224,7 @@ class API {
                 call: Call<Map<String, List<Utilizador>>>,
                 response: Response<Map<String, List<Utilizador>>>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful) { // se a reposta teve sucesso...
                     val responseBody = response.body()
                     val utilizadorList = responseBody?.get("utilizador")
 
@@ -218,11 +238,13 @@ class API {
                         println("User details: Email - $email, Password - $password, Data - $data")
                     }
                 } else {
+                    // Log detalhes do failure
                     Log.e("RESPONSE_FAILURE", "Reponse not Successful: $response")
                 }
             }
-            override fun onFailure(call: Call<Map<String, List<Utilizador>>>, t: Throwable) {
+            override fun onFailure(call: Call<Map<String, List<Utilizador>>>, t: Throwable) { // se não houver resposta...
                 t.printStackTrace()
+                // Log detalhes do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
@@ -230,6 +252,7 @@ class API {
 
     // pede á API um utilizador, fornecendo um ID
     fun buscarUtilizadorPorIdAPI(id: String, teste: String, context: Context){
+        // faz a call á API
         val call = RetrofitInitializer()
             .utilizadorService()
             .buscarUtilizador(autorizacao = "Bearer $teste", id)
@@ -241,14 +264,12 @@ class API {
             ) {
 
                 val dialogBuilder = AlertDialog.Builder(context)
-                if (response.isSuccessful){
-
+                if (response.isSuccessful){ // se teve resposta mostra o utilizador obtido numa janela
                     val utilizadorWrapper = response.body()
                     dialogBuilder.setTitle("Utilizador")
-
                     utilizadorWrapper?.let {
                         val utilizador = it.utilizador
-                        // Obtain user details from the wrapped object
+                        // Obtem os dados
                         val email = utilizador.email
                         val password = utilizador.password
                         val data = utilizador.data
@@ -260,27 +281,26 @@ class API {
                                     "Password: $password\n"+
                                     "Data: $data\n"
                         )
-
                         dialogBuilder.setPositiveButton("OK") { dialog, _->
                             dialog.dismiss()
                         }
-
                         var alertDialog = dialogBuilder.create()
                         alertDialog.show()
                     }
-                } else {
+                } else { // se não houver resposta mostra uma mensagem de erro numa janela
                     dialogBuilder.setMessage("Não há utilizador")
                     dialogBuilder.setPositiveButton("OK") { dialog, _->
                         dialog.dismiss()
                     }
                     var alertDialog = dialogBuilder.create()
                     alertDialog.show()
-
+                    // Log detalhes do failure
                     Log.e("RESPONSE_FAILURE", "Response not Successful: $response")
                 }
             }
-            override fun onFailure(call: Call<UtilizadorWrapper>, t: Throwable) {
+            override fun onFailure(call: Call<UtilizadorWrapper>, t: Throwable) { // se não houver resposta...
                 t.printStackTrace()
+                // Log detalhes do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
@@ -288,12 +308,18 @@ class API {
 
     // pede á API para atualizar um utilizador, fornecendo um ID
     fun atualizarUtilizadorAPI(token: String, id: String, email:String, password:String, context: Context){
+        // obtem a data
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
+        // obtem o utilizador
         var utilizador = Utilizador(email, password, data)
+        // embrulha o utilizador
         val utilizadorWrapper = UtilizadorWrapper(utilizador)
+        // manda o utilizador embrulhado para a API
         updateUtilizadorAPI(token, id, utilizadorWrapper, context)
     }
+    // atualiza o utilizador na API
     private fun updateUtilizadorAPI(token: String, id: String, utilizadorWrapper: UtilizadorWrapper, context: Context){
+        // faz a call para a API
         val call = RetrofitInitializer()
             .utilizadorService()
             .atualizarUtilizador(autorizacao = "Bearer $token", id, utilizadorWrapper)
@@ -304,11 +330,12 @@ class API {
                 response: Response<Void>
             ) {
                 // Log detalhes da resposta
-                Toast.makeText(context, "Atuazliado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Atualizado", Toast.LENGTH_SHORT).show()
                 Log.d("API_CALL_SUCCESS", "Atuazliado")
             }
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 t.printStackTrace()
+                // Log detalhes do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
@@ -325,10 +352,12 @@ class API {
                 call: Call<Void>,
                 response: Response<Void>
             ) {
-                // Log detalhes da resposta
+                // apaga o utilizador na sharedPreferences
                 UtilizadorManager.apagarUtilizador()
+                // apaga o token na sharedPreferences
                 TokenManager.apagarToken()
-                Toast.makeText(context, "Apagado", Toast.LENGTH_SHORT).show()
+                // Log detalhes da resposta
+                //Toast.makeText(context, "Apagado", Toast.LENGTH_SHORT).show()
                 Log.d("API_CALL_SUCCESS", "Apagado")
             }
             override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -352,16 +381,18 @@ class API {
 
             try {
                 val response = call.execute()
-                if (response.isSuccessful) {
+                if (response.isSuccessful) { // se a reposta teve sucesso...
                     val responseBody = response.body()
                     val notaList = responseBody?.get("nota") ?: emptyList()
                     processarListaNotasAPI(notaList)
-                } else {
+                } else { // se a reposta não teve sucesso...
+                    // Log do failure
                     Log.e("RESPONSE_FAILURE", "Reponse not Successful: $response")
                     emptyList()
                 }
-            } catch (e: Exception) {
+            } catch (e: Exception) { // se não houve resposta...
                 e.printStackTrace()
+                // Log do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${e.message}")
                 emptyList()
             }
@@ -406,7 +437,7 @@ class API {
                 response: Response<NotaWrapper>
             ) {
                 val dialogBuilder = AlertDialog.Builder(context)
-                if (response.isSuccessful){
+                if (response.isSuccessful){ // se a reposta teve sucesso mostra a nota obtida numa janela
                     val notaWrapper = response.body()
                     dialogBuilder.setTitle("Nota")
                     notaWrapper?.let {
@@ -430,18 +461,20 @@ class API {
                         var alertDialog = dialogBuilder.create()
                         alertDialog.show()
                     }
-                } else {
+                } else { // se a não teve sucesso mostra uma mensagem de erro
                     dialogBuilder.setMessage("Não há nota")
                     dialogBuilder.setPositiveButton("OK") { dialog, _->
                         dialog.dismiss()
                     }
                     var alertDialog = dialogBuilder.create()
                     alertDialog.show()
+                    // Log do failure
                     Log.e("RESPONSE_FAILURE", "Response not Successful: $response")
                 }
             }
             override fun onFailure(call: Call<NotaWrapper>, t: Throwable) {
                 t.printStackTrace()
+                // Log do failure
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
             }
         })
@@ -461,7 +494,7 @@ class API {
     }
     // adiciona um nota na base de dados
     fun addNotaAPI(token: String, nota: Nota, onResult: (Boolean) -> Unit) {
-        // embrula o utilizador
+        // embrulha o utilizador
         val notaWrapper = NotaWrapper(nota)
         val call = RetrofitInitializer()
             .notaService()
@@ -472,7 +505,7 @@ class API {
                 call: Call<Void>,
                 response: Response<Void>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful) { // se a reposta teve sucesso
                     val notaAdicionada = response.body()
                     onResult(true)
                     // Log detalhes da resposta
@@ -537,10 +570,11 @@ class API {
         })
     }
 
+    // Função para inflate do layout
     private fun inflateLayout(context: Context) {
         val inflater = LayoutInflater.from(context)
 
-        // Inflate the layout resource
+        // Inflate do layout
         val inflatedLayout = inflater.inflate(R.layout.layout_progresso, null) as ConstraintLayout
         val dialogBuilder = AlertDialog.Builder(context)
             .setView(inflatedLayout)
