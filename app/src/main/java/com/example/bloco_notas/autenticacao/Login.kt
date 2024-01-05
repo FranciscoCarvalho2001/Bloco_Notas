@@ -33,6 +33,7 @@ class Login : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        // inicia a variavel
         api = API()
 
         // inicializa sharedPreferences dos objetos
@@ -46,6 +47,7 @@ class Login : AppCompatActivity() {
         loginButton = findViewById(R.id.loginButton)
         mudarPagina = findViewById(R.id.mudarPagina)
 
+        // botão para voltar a atrás
         voltarBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
                 val intent = Intent(this@Login, PaginaInicial::class.java)
@@ -55,18 +57,21 @@ class Login : AppCompatActivity() {
             }
         }
 
+        // botão para fazer login na app
         loginButton.setOnClickListener {
+            // obtem o email
             val email = loginEmail.text.toString().trim()
+            // obtem a pasword
             val password = loginPassword.text.toString().trim()
+            // faz o login com email e password fornecidos
             api.loginUtilizadorAPI(email, password, this@Login)
 
-            // for input manager and initializing it.
+            // esconde o teclado
             val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-
-            // on below line hiding our keyboard.
             inputMethodManager.hideSoftInputFromWindow(loginPassword.getWindowToken(), 0)
         }
-        
+
+        // muda para a pagina Login
         mudarPagina.setOnClickListener  {
             startActivity(Intent(this@Login, Registar::class.java))
             finish()
