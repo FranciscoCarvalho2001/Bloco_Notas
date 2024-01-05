@@ -9,7 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
+import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.listaNotas.ListaNotas
@@ -33,7 +35,6 @@ class API {
 
     var sp: MinhaSharedPreferences = MinhaSharedPreferences()
     lateinit var alertDialog : AlertDialog
-    private val notaLista = ArrayList<Nota>()
 
     fun internetConectada(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -50,15 +51,23 @@ class API {
 
     // obtem os dados do utilizador para registar
     fun registarUtilizadorAPI(email: String, password: String, context: Context){
-
+        if (context != null) {
+            inflateLayout(context)
+        }
         val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
         var utilizador = Utilizador("$email", "$password", "$data")
 
         addUtilizadorAPI(utilizador) {
             if (it){
                 Toast.makeText(context, "Registado!", Toast.LENGTH_SHORT).show()
+                alertDialog.dismiss()
+                context.startActivity(Intent(context, Login::class.java))
+                (context as AppCompatActivity).finish()
                 Log.e("Resposta", "Response: $it")
             } else {
+                if (context != null) {
+                    alertDialog.cancel()
+                }
                 Toast.makeText(context, "Não Registado!", Toast.LENGTH_SHORT).show()
                 Log.e("Resposta", "Response: $it")
             }
@@ -102,7 +111,9 @@ class API {
     }
 
     fun loginUtilizadorAPI(email: String, password: String, context: Context){
-        inflateLayout(context)
+        if (context != null) {
+            inflateLayout(context)
+        }
         val call = RetrofitInitializer()
             .loginLogoutService()
             .login("loginUser", "$email", "$password")
@@ -119,12 +130,15 @@ class API {
                     //Toast.makeText(context, "LOGADO!", Toast.LENGTH_SHORT).show()
                     Log.e("RESPONSE", "Response : $responseBody")
                     //buscarNotasAPI(TokenManager.buscarToken().toString(),context)
+                    alertDialog.dismiss()
                     context.startActivity(Intent(context, ListaNotas::class.java))
                     (context as AppCompatActivity).finish()
                 }
             }
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                alertDialog.cancel()
+                if (context != null) {
+                    alertDialog.cancel()
+                }
                 t.printStackTrace()
                 Toast.makeText(context, "ERRO AO ENTRAR!", Toast.LENGTH_SHORT).show()
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
@@ -133,6 +147,9 @@ class API {
     }
 
     fun logoutUtilizadorAPI(token: String, email: String, context: Context){
+        if (context != null) {
+            inflateLayout(context)
+        }
         val call = RetrofitInitializer()
             .loginLogoutService()
             .logout("logoutUser", "$email", "$token")
@@ -147,6 +164,9 @@ class API {
                     UtilizadorManager.apagarUtilizador()
                     TokenManager.apagarToken()
                     Toast.makeText(context, "$responseBody", Toast.LENGTH_SHORT).show()
+                    alertDialog.dismiss()
+                    context.startActivity(Intent(context, PaginaInicial::class.java))
+                    (context as AppCompatActivity).finish()
                     // Log detalhes da resposta
                     Log.d("API_CALL_SUCCESS", "Response: $responseBody")
                 } else {
@@ -156,6 +176,9 @@ class API {
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
+                if (context != null) {
+                    alertDialog.cancel()
+                }
                 t.printStackTrace()
                 Toast.makeText(context, "ERRO AO SAIR!", Toast.LENGTH_SHORT).show()
                 Log.e("API_CALL_FAILURE", "API call failed: ${t.message}")
@@ -264,16 +287,11 @@ class API {
     }
 
     // pede á API para atualizar um utilizador, fornecendo um ID
-    fun atualizarUtilizadorAPI(token: String, id: String, context: Context){
-        // obtem os valores do email e password
-//        val email = registoEmail.text.toString().trim()
-//        val password = registoPassword.text.toString().trim()
-
-        var utilizador = Utilizador("dfgdfgdfgdf", "asdasdadada", "kshdifsgdflskaihpueçiwei")
-
+    fun atualizarUtilizadorAPI(token: String, id: String, email:String, password:String, context: Context){
+        val data = SimpleDateFormat("dd/M/yyyy HH:mm:ss").format(Date())
+        var utilizador = Utilizador(email, password, data)
         val utilizadorWrapper = UtilizadorWrapper(utilizador)
-
-        updateUtilizadorAPI(id, token, utilizadorWrapper, context)
+        updateUtilizadorAPI(token, id, utilizadorWrapper, context)
     }
     private fun updateUtilizadorAPI(token: String, id: String, utilizadorWrapper: UtilizadorWrapper, context: Context){
         val call = RetrofitInitializer()
@@ -308,6 +326,8 @@ class API {
                 response: Response<Void>
             ) {
                 // Log detalhes da resposta
+                UtilizadorManager.apagarUtilizador()
+                TokenManager.apagarToken()
                 Toast.makeText(context, "Apagado", Toast.LENGTH_SHORT).show()
                 Log.d("API_CALL_SUCCESS", "Apagado")
             }

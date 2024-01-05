@@ -10,7 +10,7 @@ import com.example.bloco_notas.models.Nota
 
 class Sincronizar {
     private val sp: MinhaSharedPreferences = MinhaSharedPreferences()
-    private val api: API = API()
+    private val api: API by lazy { API() }
 
     private val handlerThread = HandlerThread("SyncHandlerThread")
     private lateinit var handler: Handler

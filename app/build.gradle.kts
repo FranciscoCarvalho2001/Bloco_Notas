@@ -52,6 +52,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("com.airbnb.android:lottie:5.2.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
 
     implementation ("com.google.code.gson:gson:2.8.5")
     // referencia para o Retrofit
@@ -59,4 +60,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1")
+
+    // About Page Library
+    implementation("io.github.medyo:android-about-page:2.0.0")
 }

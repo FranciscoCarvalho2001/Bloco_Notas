@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/secondary"
+    tools:context=".PaginaInicial">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/entrar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Entrar"
+        android:backgroundTint="@color/opaqueSecondary"
+        android:padding="15dp"
+        android:fontFamily="@font/poppins"
+        app:layout_constraintBottom_toTopOf="@id/registo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:cornerRadius="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginHorizontal="70dp"
+        android:textColor="@color/white"
+       />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/registo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Registar"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/opaqueSecondary"
+        android:fontFamily="@font/poppins"
+        android:padding="15dp"
+        app:cornerRadius="15dp"
+        app:layout_constraintBottom_toBottomOf="@id/convidado"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="30dp"
+        android:layout_marginHorizontal="70dp"
+        />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/logotipo"
+        app:layout_constraintBottom_toTopOf="@id/entrar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/convidado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Entrar como convidado"
+        android:textSize="18sp"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:text="Notebox"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:layout_marginBottom="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageView3" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

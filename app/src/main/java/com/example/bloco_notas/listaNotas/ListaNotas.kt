@@ -2,8 +2,11 @@ package com.example.bloco_notas.listaNotas
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -12,10 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.bloco_notas.Acerca
+import com.example.bloco_notas.Definicoes
+import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
-import com.example.bloco_notas.autenticacao.Login
 import com.example.bloco_notas.autenticacao.TokenManager
 import com.example.bloco_notas.autenticacao.UtilizadorManager
 import com.example.bloco_notas.models.Nota
@@ -26,7 +32,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -47,20 +52,31 @@ class ListaNotas : AppCompatActivity() {
     private lateinit var drawerLayout :DrawerLayout
     private lateinit var utilizadorEmail :String
     private lateinit var utilizadorToken :String
+    private lateinit var utilizadorNome :String
+    private lateinit var utilizadorImagemPerfil :String
     private var sync : Sincronizar = Sincronizar()
 
     private val handler = android.os.Handler()
     private val delay: Long = 3000 // 3 segundos
     private var isDialogShowing = false
 
-    private var funcaoExecutada = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_notas)
 
-        //inicialização das variaveis
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED ||
+            checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED ||
+            checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_DENIED
+        ) {
+            val permission = arrayOf(
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.READ_MEDIA_IMAGES
+            )
+            requestPermissions(permission, 112)
+        }
 
+        //inicialização das variaveis
         sp.init(this)
         sync.init(this)
         ListaDeNotas = findViewById(R.id.note_list_recyclerview)
@@ -68,6 +84,7 @@ class ListaNotas : AppCompatActivity() {
         searchBar = findViewById(R.id.searchBar)
         apagaTudo=findViewById(R.id.apagarTudo)
         utilizadorEmail = UtilizadorManager.buscarEMAIL().toString()
+        utilizadorNome = UtilizadorManager.buscarUserName().toString()
         TokenManager.init(this)
         utilizadorToken = TokenManager.buscarToken().toString()
         sp.marcarFlag("internet", true)
@@ -92,7 +109,9 @@ class ListaNotas : AppCompatActivity() {
         // Define o adapter na RecyclerView
         ListaDeNotas.adapter = adapter
 
-        GlobalScope.launch(Dispatchers.Main) {
+        setupDrawerLayout()
+
+        lifecycleScope.launch(Dispatchers.Main) {
 
             if (!utilizadorEmail.isEmpty()) {
                 if (sp.buscarFlag("buscar")) {
@@ -124,7 +143,6 @@ class ListaNotas : AppCompatActivity() {
 
             eventoApagatuTudo()
 
-            setupDrawerLayout()
 
             Toast.makeText(this@ListaNotas, "porque", Toast.LENGTH_SHORT).show()
             if(sp.buscarFlag("logado")){
@@ -178,8 +196,7 @@ class ListaNotas : AppCompatActivity() {
             TokenManager.apagarToken()
             sp.marcarFlag("buscar", true)
             sp.marcarFlag("logado", false)
-            finishAffinity();
-            System.exit(0);}
+            finishAffinity()}
         val dialog = builder.create()
 
         handler.postDelayed(object : Runnable{
@@ -187,10 +204,11 @@ class ListaNotas : AppCompatActivity() {
                 if(utilizadorEmail.isNotEmpty()) {
                     if (!api.internetConectada(this@ListaNotas) && !isDialogShowing) {
                         if (sp.buscarFlag("internet")) {
-                            dialog.show()
-                            isDialogShowing = true
-                            sp.marcarFlag("internet", false)
-
+                            if (!dialog.isShowing) {
+                                dialog.show()
+                                isDialogShowing = true
+                                sp.marcarFlag("internet", false)
+                            }
                         }
                     } else if (api.internetConectada(this@ListaNotas) && isDialogShowing) {
                         dialog.dismiss()
@@ -274,6 +292,8 @@ class ListaNotas : AppCompatActivity() {
             .show()
     }
 
+    // ----------------------------------------------------------------- Menu ---------------------------------------------------------------------------
+
     private fun setupDrawerLayout() {
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuBtn = findViewById<ImageButton>(R.id.btnMenu)
@@ -299,8 +319,9 @@ class ListaNotas : AppCompatActivity() {
 
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val headerView = navigationView.getHeaderView(0)
-        val nome: TextView = headerView.findViewById(R.id.nome)
+        val nome = headerView.findViewById<TextView>(R.id.nome)
         val loginMenuItem = navView.menu.findItem(R.id.nav_login)
+        val ImagemPerfil = headerView.findViewById<ImageView>(R.id.fotoPerfil)
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -318,13 +339,19 @@ class ListaNotas : AppCompatActivity() {
                 }
 
                 R.id.nav_settings -> {
-                    // Lógica para o item 2
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val intent = Intent(this@ListaNotas, Definicoes::class.java)
+                        startActivity(intent)
+                    }
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
-                // Adicione mais casos conforme necessário
 
                 R.id.nav_about -> {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val intent = Intent(this@ListaNotas, Acerca::class.java)
+                        startActivity(intent)
+                    }
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -332,16 +359,18 @@ class ListaNotas : AppCompatActivity() {
             }
         }
         if(!utilizadorEmail.isEmpty()){
-            nome.text= utilizadorEmail
+            nome.text= UtilizadorManager.buscarUserName().toString()
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.login))
             loginMenuItem.setTitle("Sair")
+            if(UtilizadorManager.buscarImagemPerfil() != null){
+                ImagemPerfil?.setImageURI(Uri.parse(UtilizadorManager.buscarImagemPerfil()))
+            }
             loginMenuItem.setOnMenuItemClickListener{
                 sync.sync(this)
                 sp.marcarFlag("buscar", true)
                 sp.marcarFlag("logado", false)
                 api.logoutUtilizadorAPI(utilizadorToken, utilizadorEmail, this)
-                startActivity(Intent(this, Login::class.java))
-                finish()
+
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
             }
@@ -351,7 +380,7 @@ class ListaNotas : AppCompatActivity() {
             loginMenuItem.setIcon(getResources().getDrawable(R.drawable.logout))
             loginMenuItem.setTitle("Entrar/Registar")
             loginMenuItem.setOnMenuItemClickListener{
-                startActivity(Intent(this, Login::class.java))
+                startActivity(Intent(this, PaginaInicial::class.java))
                 finish()
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
@@ -361,6 +390,7 @@ class ListaNotas : AppCompatActivity() {
 
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -368,6 +398,9 @@ class ListaNotas : AppCompatActivity() {
             super.onBackPressed()
         }
     }
-
+    override fun onResume() {
+        super.onResume()
+        setupDrawerLayout()
+    }
 
 }

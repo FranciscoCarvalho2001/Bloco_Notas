@@ -7,21 +7,26 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.bloco_notas.PaginaInicial
 import com.example.bloco_notas.R
 import com.example.bloco_notas.listaNotas.ListaNotas
 import com.example.bloco_notas.storage.API
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class Login : AppCompatActivity() {
 
     // Variáveis de layout
+    private lateinit var voltarBtn: ImageButton
     private lateinit var loginEmail: EditText
     private lateinit var loginPassword: EditText
     private lateinit var loginButton: Button
-    private lateinit var logoutButton: Button
-    private lateinit var mostraUtilizadorEToken: Button
-    private lateinit var mudarParaRegistoButton: Button
+    private lateinit var mudarPagina: TextView
     private lateinit var api : API
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,12 +40,20 @@ class Login : AppCompatActivity() {
         TokenManager.init(applicationContext)
 
         // ID's dos elementos
+        voltarBtn = findViewById(R.id.voltar)
         loginEmail = findViewById(R.id.loginEmail)
         loginPassword = findViewById(R.id.loginPassword)
         loginButton = findViewById(R.id.loginButton)
-        logoutButton = findViewById(R.id.logoutButton)
-        mostraUtilizadorEToken = findViewById(R.id.mostraUtilizadorEToken)
-        mudarParaRegistoButton = findViewById(R.id.mudarParaRegistoButton)
+        mudarPagina = findViewById(R.id.mudarPagina)
+
+        voltarBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                val intent = Intent(this@Login, PaginaInicial::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+        }
 
         loginButton.setOnClickListener {
             val email = loginEmail.text.toString().trim()
@@ -53,25 +66,10 @@ class Login : AppCompatActivity() {
             // on below line hiding our keyboard.
             inputMethodManager.hideSoftInputFromWindow(loginPassword.getWindowToken(), 0)
         }
-
-        logoutButton.setOnClickListener {
-            val token = TokenManager.buscarToken().toString()
-            val email = UtilizadorManager.buscarEMAIL().toString()
-            api.logoutUtilizadorAPI(token, email, this@Login)
-        }
-
-        mostraUtilizadorEToken.setOnClickListener {
-            val id = UtilizadorManager.buscarID()
-            val email = UtilizadorManager.buscarEMAIL()
-            val data = UtilizadorManager.buscarDATA()
-            val token = TokenManager.buscarToken()
-            Log.e("Utilizador", "ID: $id, EMAIL: $email, DATA: $data, TOKEN: $token")
-            startActivity(Intent(this@Login, ListaNotas::class.java))
-        }
-
-        mudarParaRegistoButton.setOnClickListener {
+        
+        mudarPagina.setOnClickListener  {
             startActivity(Intent(this@Login, Registar::class.java))
-
+            finish()
         }
     }
 }

@@ -4,12 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/secondary"
     tools:context=".autenticacao.Login">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/voltar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="8dp"
+            android:src="@drawable/seta_branca"
+            android:layout_marginEnd="200dp"
+            android:layout_marginTop="10dp"/>
 
         <TextView
             android:id="@+id/loginText"
@@ -21,37 +33,61 @@
             android:layout_marginLeft="50dp"
             android:textAlignment="center"
             android:textSize="50sp"
-            android:textAllCaps="true"
             android:textStyle="bold"
-            android:text="Login" />
+            android:text="Entrar"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins"/>
 
-
-        <EditText
-            android:id="@+id/loginEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="50dp"
-            android:ems="10"
-            android:minHeight="50dp"
-            android:maxHeight="50dp"
-            android:inputType="textEmailAddress"
-            android:hint="Email" />
-
-        <EditText
-            android:id="@+id/loginPassword"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:layout_marginRight="50dp"
             android:layout_marginLeft="50dp"
-            android:ems="10"
-            android:minHeight="50dp"
-            android:maxHeight="50dp"
-            android:inputType="textPassword"
-            android:hint="Password" />
+            android:layout_marginTop="100dp"
+            android:hint="Email"
+            style="@style/MyTextInputLayout"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/loginEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
+                android:ems="10"
+                android:minHeight="50dp"
+                android:maxHeight="50dp"
+                android:inputType="textEmailAddress"
+                android:hint="Email"
+                android:textColorHint="@color/opaqueSecondary"
+                android:fontFamily="@font/poppins"
+                style="@style/MyTextInputEditText"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
+            android:hint="Password"
+            style="@style/MyTextInputLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/loginPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:minHeight="50dp"
+                android:maxHeight="50dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:fontFamily="@font/poppins"
+                android:textColorHint="@color/opaqueSecondary"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/loginButton"
@@ -60,34 +96,27 @@
             android:layout_marginBottom="20dp"
             android:layout_marginRight="50dp"
             android:layout_marginLeft="50dp"
-            android:text="LOGIN" />
+            android:text="Entrar"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/opaqueSecondary"
+            android:fontFamily="@font/poppins"
+            android:padding="15dp"
+            app:cornerRadius="8dp"/>
 
-        <Button
-            android:id="@+id/logoutButton"
+        <TextView
+            android:id="@+id/mudarPagina"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:layout_marginRight="50dp"
             android:layout_marginLeft="50dp"
-            android:text="LOGOUT" />
+            android:text="@string/loginPergunta"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/opaqueSecondary"
+            android:fontFamily="@font/poppins"
+            android:gravity="center"
+            android:textSize="12sp"/>
 
-        <Button
-            android:id="@+id/mostraUtilizadorEToken"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="50dp"
-            android:text="Mostra Utilizador" />
-
-        <Button
-            android:id="@+id/mudarParaRegistoButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="50dp"
-            android:text="MUDAR PÁGINA" />
 
     </LinearLayout>
 

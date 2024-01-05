@@ -1,9 +1,19 @@
 <resources>
-    <string name="app_name">Bloco_Notas</string>
+    <string name="app_name">Notebox</string>
     <string name="As_minhas_notas">As minhas notas</string>
     <string name="Titulo">Título</string>
     <string name="Escrever">Escreva aqui</string>
     <string name="TODO">TODO</string>
     <string name="navigation_drawer_open">aberto</string>
     <string name="navigation_drawer_close">fechado</string>
+    <string name="Bem_vindo">Bem-vindo</string>
+    <string name="AcercaTexto">Uma aplicação de Bloco de Nota feita no âmbito da disciplina Desenvolvimento de Aplicações Movéis</string>
+    <string name="versao">Versão 1.0</string>
+    <string name="nome">Dinis Silva nº23031</string>
+    <string name="nome2">Francisco Silva nº23035</string>
+    <string name="git">Página Github</string>
+    <string name="copyright">Copyright 2024</string>
+    <string name="professores">Professores:\nCasimiro Pereira \nPaulo Santos</string>
+    <string name="registoAfirmacao">Já tem conta? Entre!</string>
+    <string name="loginPergunta">Não tem conta? Registe-se</string>
 </resources>

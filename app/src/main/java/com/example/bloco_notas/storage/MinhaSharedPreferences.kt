@@ -19,9 +19,9 @@ class MinhaSharedPreferences {
         UtilizadorManager.init(context)
         email = UtilizadorManager.buscarEMAIL().toString()
         if(email.isEmpty()){
-            ficheiro = "Spref1"
+            ficheiro = "ficheiroSPA"
         }else{
-            ficheiro = "Spref2"
+            ficheiro = "ficheiroSPB"
         }
         sh = context.getSharedPreferences(ficheiro, AppCompatActivity.MODE_PRIVATE)
     }

@@ -93,4 +93,18 @@
 
     </LinearLayout>
 
+    <!-- Botão Flutuante -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_micro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="fab_content_desc"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/micro"
+        app:tint="@color/black"
+        android:backgroundTint="@color/primary" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
